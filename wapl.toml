@@ -1,0 +1,11 @@
+[build]
+input = "src/main.wapl"
+output = "target/stddev"
+opt = "O2"
+clang = "clang"
+
+[release]
+input = "src/main.wapl"
+output = "target/stddev"
+opt = "O3"
+clang = "clang"

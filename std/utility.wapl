@@ -1,0 +1,6 @@
+fn bool_to_str(bool b):ptr:char{
+    return if(b,"true","false");
+}
+fn yes_no(bool b):ptr:char{
+    return if(b,"Yes","No");
+}

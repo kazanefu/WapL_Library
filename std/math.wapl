@@ -1,0 +1,12 @@
+fn math_PI():f64{
+    return 3.14159265359;
+}
+fn math_E():f64{
+    return 2.71828182846;
+}
+fn math_absi64(i64 x):i64{
+    return if(>=(x,0),x,*(x,-1));
+}
+fn math_absf64(f64 x):f64{
+    return if(>=(x,0.0),x,*(x,-1.0));
+}

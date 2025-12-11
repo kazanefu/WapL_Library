@@ -1,0 +1,28 @@
+fn ++(ptr:i64 p):i64{
+    =(*_(p),+(*_(p),1));
+    return *_(p);
+}
+fn --(ptr:i64 p):i64{
+    =(*_(p),-(*_(p),1));
+    return *_(p);
+}
+fn +=(ptr:i64 p,i64 a):i64{
+    =(*_(p),+(*_(p),a));
+    return *_(p);
+}
+fn -=(ptr:i64 p,i64 a):i64{
+    =(*_(p),-(*_(p),a));
+    return *_(p);
+}
+fn *=(ptr:i64 p,i64 a):i64{
+    =(*_(p),*(*_(p),a));
+    return *_(p);
+}
+fn /=(ptr:i64 p,i64 a):i64{
+    =(*_(p),/(*_(p),a));
+    return *_(p);
+}
+fn %=(ptr:i64 p,i64 a):i64{
+    =(*_(p),%(*_(p),a));
+    return *_(p);
+}

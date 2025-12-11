@@ -1,0 +1,63 @@
+struct VecT{
+    ptr:T data,
+    i64 elem_size,
+    i64 len,
+    i64 cap,
+}
+
+fn VecT_new(i64 e_size,i64 capa):VecT{
+    #=(v,_,VecT);
+    #=(vp,&_(v),ptr:VecT);
+    #=(d,malloc(*(e_size,capa),T),ptr:T);
+    =(val(->(vp,data)),d);
+    =(val(->(vp,elem_size)),e_size);
+    =(val(->(vp,len)),0);
+    =(val(->(vp,cap)),capa);
+    return v;
+}
+
+fn VecT_push(ptr:VecT &self,ptr:T value):ptr:T{
+    warptoif(==(_>(&self,cap),_>(&self,len)),capaover,push);
+    point capaover;
+    =(val(->(&self,data)),realloc(_>(&self,data),*(_>(&self,elem_size),*(+(_>(&self,cap),1),2)),T));
+    =(val(->(&self,cap)),*(+(_>(&self,cap),1),2));
+    warpto(push);
+    point push;
+    memcpy(ptr_add(_>(&self,data),*(_>(&self,len),_>(&self,elem_size))),value,_>(&self,elem_size));
+    =(val(->(&self,len)),+(_>(&self,len),1));
+    return value;
+}
+
+fn VecT_get(ptr:VecT &self,i64 indx):ptr:T{
+    return ptr_add(_>(&self,data),*(indx,_>(&self,elem_size)));
+}
+
+fn VecT_free(ptr:VecT &self){
+    free(_>(&self,data));
+    =(val(->(&self,len)),0);
+    =(val(->(&self,cap)),0);
+}
+
+fn VecT_from(&:T srcData,i64 e_size, i64 size):VecT{
+    #=(v,_,VecT);
+    #=(vp,&_(v),ptr:VecT);
+    #=(d,malloc(*(e_size,size),T),*:T);
+    memcpy(d,srcData,*(e_size,size));
+    =(val(->(vp,data)),pmove(d));
+    =(val(->(vp,elem_size)),e_size);
+    =(val(->(vp,len)),size);
+    =(val(->(vp,cap)),size);
+    return v;    
+}
+
+fn VecT_connect(ptr:VecT &self,ptr:VecT value):ptr:VecT{
+    warptoif(<=(_>(&self,cap),+(_>(&self,len),_>(value,len))),capaover,push);
+        point capaover;
+            =(val(->(&self,data)),realloc(_>(&self,data),*(+(_>(&self,len),_>(value,len)),_>(&self,elem_size)),T));
+            =(val(->(&self,cap)),+(_>(&self,len),_>(value,len)));
+        warpto(push);
+    point push;
+    memcpy(ptr_add(_>(&self,data),_>(&self,len)),_>(value,data),*(_>(value,len),_>(value,elem_size)));
+    =(val(->(&self,len)),+(_>(&self,len),_>(value,len)));
+    return value;
+}

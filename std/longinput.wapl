@@ -1,0 +1,65 @@
+use "./std/String.wapl"
+
+fn input_i64(i64 n):ptr:i64{
+    #=(a,_,ptr:i64);
+    =(a,malloc(*(sizeof(i64),n),i64));
+    #=(i,0,i64);
+    warpto(InputStart);
+    point InputStart;
+    warptoif(<(i,n),InputLoop,InputEnd);
+    point InputLoop;
+    scanf("%lld",ptr_add(a,i));
+    =(i,+(i,1));
+    warpto(InputStart)
+    point InputEnd;
+    warpto(Solve);
+    point Solve;
+    return a;
+}
+fn input_f64(i64 n):ptr:f64{
+    #=(a,_,ptr:f64);
+    =(a,malloc(*(sizeof(f64),n),f64));
+    #=(i,0,i64);
+    warpto(InputStart);
+    point InputStart;
+    warptoif(<(i,n),InputLoop,InputEnd);
+    point InputLoop;
+    scanf("%lf",ptr_add(a,i));
+    =(i,+(i,1));
+    warpto(InputStart)
+    point InputEnd;
+    warpto(Solve);
+    point Solve;
+    return a;
+}
+fn input_char(i64 n):ptr:char{
+    #=(a,_,ptr:char);
+    =(a,malloc(*(sizeof(char),*(n,2)),char));
+    #=(i,0,i64);
+    warpto(InputStart);
+    point InputStart;
+    warptoif(<(i,n),InputLoop,InputEnd);
+    point InputLoop;
+    scanf(" %c",ptr_add(a,i));
+    =(i,+(i,1));
+    warpto(InputStart)
+    point InputEnd;
+    warpto(Solve);
+    point Solve;
+    return a;
+}
+fn input_str():ptr:char{
+    #=(a,malloc(1000005,char),ptr:char);
+    scanf("%1000000s",a);
+    return a;
+}
+fn input_Strings(i64 n):ptr:String{
+    #=(a,_,ptr:String);
+    =(a,malloc(*(sizeof(String),n),String));
+    #=(i,0,i64);
+    loopif:(<(i,n)){
+        =([](a,i),String_from(input_str()));
+        =(i,+(i,1));
+    }
+    return a;
+}

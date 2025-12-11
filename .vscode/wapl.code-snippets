@@ -1,0 +1,20 @@
+{
+    "Wapl Main Template": {
+        "prefix": "aci",
+        "body": [
+            "use \"./std/allstd.wapl\"",
+            "",
+            "fn main():i32{",
+            "    #=(ans,0,i64);",
+            "    #=(n,_,i64);",
+            "    scanf(\"%lld\",&_(n));",
+            "    #=(a,input_i64(n),*:i64);",
+            "",
+            "    println(format(\"%lld\",ans));",
+            "    free(pmove(a));",
+            "    return 0s;",
+            "}",
+        ],
+        "description": "Wapl main function template with input array"
+    }
+}

@@ -1,0 +1,4 @@
+fn SayHello():ptr:char{
+    println("Hello World!");
+    return format("Hello World!");
+}

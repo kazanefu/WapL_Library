@@ -1,0 +1,82 @@
+use "./std/VecT.wapl"
+declare strcmp(ptr:char, ptr:char):i32;
+
+struct String{
+    ptr:char data,
+    i64 len,
+    i64 cap,
+}
+
+fn String_new(i64 capa):String{
+    #=(v,_,String);
+    #=(vp,&_(v),ptr:String);
+    #=(d,malloc(+(capa,1),char),ptr:char);
+    =(val(->(vp,data)),d);
+    =(val(->(vp,len)),0);
+    =(val(->(vp,cap)),capa);
+    return v;
+}
+
+fn String_strlen(ptr:char c):i64{
+    #=(i,0,i64);
+    warpto(LoopStart);
+    point LoopStart;
+    warptoif(==(index(c,i),'\0'),Break,InLoop);
+    point InLoop;
+        =(i,+(i,1));
+    warpto(LoopStart);
+    point Break;
+    return i;
+}
+
+fn String_from(ptr:char c):String{
+    #=(v,_,String);
+    #=(vp,&_(v),ptr:String);
+    #=(c_len,String_strlen(c),i64);
+    #=(d,malloc(+(c_len,1),char),ptr:char);
+    =(val(->(vp,data)),d);
+    =(val(->(vp,len)),c_len);
+    =(val(->(vp,cap)),c_len);
+    memcpy(val(->(vp,data)),c,c_len);
+    =(index(val(->(vp,data)),val(->(vp,len))),'\0')
+    return v;
+}
+
+fn String_push(ptr:String &self,ptr:String value):ptr:String{
+    warptoif(<=(_>(&self,cap),+(_>(&self,len),_>(value,len))),capaover,push);
+    point capaover;
+    =(val(->(&self,data)),realloc(_>(&self,data),+(*(+(+(_>(&self,len),_>(value,len)),1),2),1),char));
+    =(val(->(&self,cap)),*(+(+(_>(&self,len),_>(value,len)),1),2));
+    warpto(push);
+    point push;
+    memcpy(ptr_add(_>(&self,data),_>(&self,len)),_>(value,data),_>(value,len));
+    =(val(->(&self,len)),+(_>(&self,len),_>(value,len)));
+    =(index(val(->(&self,data)),val(->(&self,len))),'\0')
+    return value;
+}
+
+fn String_get(ptr:String &self,i64 indx):char{
+    return index(*_(->(&self,data)),indx);
+}
+
+fn String_free(ptr:String &self){
+    free(_>(&self,data));
+    =(val(->(&self,len)),0);
+    =(val(->(&self,cap)),0);
+}
+
+fn str_cmp(ptr:char str1, ptr:char str2):i64{
+    return as_i64(strcmp(str1,str2));
+}
+
+fn String_cmp(String string1, String string2):i64{
+    return as_i64(strcmp(.(string1,data),.(string2,data)));
+}
+
+fn str_eq(ptr:char str1, ptr:char str2):bool{
+    return ==(strcmp(str1,str2),0s);
+}
+
+fn String_to_VecT(String string):VecT{
+    return VecT_from(.(string,data),1,.(string,len));
+}

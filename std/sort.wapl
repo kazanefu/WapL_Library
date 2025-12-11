@@ -1,0 +1,72 @@
+use "./std/String.wapl";
+
+fn sort_swap_i64(ptr:i64 a, ptr:i64 b){
+    #=(t,*_(a),i64);
+    =(*_(a),*_(b));
+    =(*_(b),t);
+}
+fn sort_swap_String(ptr:String a, ptr:String b){
+    #=(t,*_(a),String);
+    =(*_(a),*_(b));
+    =(*_(b),t);
+}
+
+fn qsort_i64_partition(ptr:i64 arr,i64 left,i64 right):i64{
+    #=(pivot,index(arr,right),i64);
+    #=(i,-(left,1),i64);
+    #=(j,left,i64);
+    warpto(loopstart);
+    point loopstart;
+    warptoif(<(j,right),InLoop,Break);
+    point InLoop;
+        warptoif(<(index(arr,j),pivot),Swap,NoSwap);
+        point Swap;
+            =(i,+(i,1));
+            sort_swap_i64(ptr_add(arr,i),ptr_add(arr,j));
+        warpto(NoSwap);
+        point NoSwap;
+        =(j,+(j,1));
+        warpto(loopstart);
+    point Break;
+    sort_swap_i64(ptr_add(arr,+(i,1)),ptr_add(arr,right));
+    return +(i,1);
+}
+fn qsort_String_partition(&mut:String arr,i64 left,i64 right):i64{
+    #=(pivot,index(arr,right),String);
+    #=(i,-(left,1),i64);
+    #=(j,left,i64);
+    loopif:(<(j,right)){
+        warptoif(<(String_cmp(index(arr,j),pivot),0),Swap,NoSwap);
+        point Swap;
+            =(i,+(i,1));
+            sort_swap_String(ptr_add(arr,i),ptr_add(arr,j));
+        warpto(NoSwap);
+        point NoSwap;
+        =(j,+(j,1));
+    }
+    sort_swap_String(ptr_add(arr,+(i,1)),ptr_add(arr,right));
+    return +(i,1);
+}
+
+fn qsort_i64(ptr:i64 arr,i64 left,i64 right){
+    warptoif(<(left,right),then,End);
+    point then;
+        #=(p,qsort_i64_partition(arr,left,right),i64);
+        qsort_i64(arr,left,-(p,1));
+        qsort_i64(arr,+(p,1),right);
+    warpto(End);
+    
+    point End;
+
+}
+fn qsort_String(ptr:String arr,i64 left,i64 right){
+    warptoif(<(left,right),then,End);
+    point then;
+        #=(p,qsort_String_partition(arr,left,right),i64);
+        qsort_String(arr,left,-(p,1));
+        qsort_String(arr,+(p,1),right);
+    warpto(End);
+    
+    point End;
+
+}
