@@ -81,3 +81,13 @@ fn str_eq(ptr:char str1, ptr:char str2):bool{
 fn String_to_VecT(String string):VecT{
     return VecT_from(.(string,data),1,.(string,len));
 }
+
+fn String_clone(String string):String{
+    #=(clone,_,String);
+    =(.(clone,len),.(string,len));
+    =(.(clone,cap),.(string,cap));
+    #=(d, malloc(+(.(string,cap),1),char),*:char);
+    memcpy(d,.(string,data),+(.(string,len),1));
+    =(.(clone,data),pmove(d));
+    return clone;
+}

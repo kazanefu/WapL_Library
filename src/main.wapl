@@ -2,23 +2,14 @@ use "./std/allstd.wapl"
 
 fn main():i32{
     #=(ans,0,i64);
-    #=(n,_,i64);
-    scanf("%lld",&_(n));
-    #=(a,input_i64(n),*:i64);
-    #=(v,VecT_from(pmove(a),sizeof(i64),n),VecT);
+    #=(a,String_from(input_str()),String);
+    #=(clone,String_clone(a),String);
 
-    #=(m,_,i64);    
-    scanf("%lld",&_(m));
-    #=(b,input_i64(m),*:i64);
-    #=(v2,VecT_from(pmove(b),sizeof(i64),m),VecT);
+    String_free(&_(a));
+    
+    println(format("%s",.(clone,data)));
 
-    VecT_connect(&_(v),&_(v2));
-    #=(i,0,i64);
-    loopif:(<(i,.(v,len))){
-        println(format("%lld",*_(VecT_get(&_(v),i),i64)));
-        ++(&_(i));
-    }
-    VecT_free(&_(v));
-    println(format("%lld",ans));
+    String_free(&_(clone));
+
     return 0s;
 }

@@ -7,3 +7,4 @@ use "./std/String.wapl";
 use "./std/sort.wapl";
 use "./std/assign_and_cal.wapl";
 use "./std/time.wapl";
+use "./std/keymap.wapl";

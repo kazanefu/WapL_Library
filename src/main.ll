@@ -4,6 +4,8 @@ source_filename = "wapl_module"
 %VecT = type { ptr, i64, i64, i64 }
 %String = type { ptr, i64, i64 }
 %timespec = type { i64, i64 }
+%KeyMap = type { ptr, i64, i64 }
+%Entry = type { %String, ptr }
 
 @str_0 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
 @println_fmt_1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
@@ -16,12 +18,8 @@ source_filename = "wapl_module"
 @str_8 = private unnamed_addr constant [4 x i8] c"%lf\00", align 1
 @str_9 = private unnamed_addr constant [4 x i8] c" %c\00", align 1
 @str_10 = private unnamed_addr constant [10 x i8] c"%1000000s\00", align 1
-@str_11 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@str_12 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@str_13 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@println_fmt_14 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_15 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@println_fmt_16 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_11 = private unnamed_addr constant [3 x i8] c"%s\00", align 1
+@println_fmt_12 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 declare i64 @strtol(ptr, ptr, i32)
 
@@ -655,6 +653,52 @@ entry:
   %getmembervalue5 = load i64, ptr %access4, align 4
   %calltmp = call %VecT @VecT_from(ptr %getmembervalue, i64 1, i64 %getmembervalue5)
   ret %VecT %calltmp
+}
+
+define %String @String_clone(%String %string) {
+entry:
+  %string1 = alloca %String, align 8
+  store %String %string, ptr %string1, align 8
+  %ret_val = alloca %String, align 8
+  %clone = alloca %String, align 8
+  store %String zeroinitializer, ptr %clone, align 8
+  %string2 = load %String, ptr %string1, align 8
+  %access = getelementptr inbounds nuw %String, ptr %string1, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %clone3 = load %String, ptr %clone, align 8
+  %access4 = getelementptr inbounds nuw %String, ptr %clone, i32 0, i32 1
+  %getmembervalue5 = load i64, ptr %access4, align 4
+  store i64 %getmembervalue, ptr %access4, align 4
+  %string6 = load %String, ptr %string1, align 8
+  %access7 = getelementptr inbounds nuw %String, ptr %string1, i32 0, i32 2
+  %getmembervalue8 = load i64, ptr %access7, align 4
+  %clone9 = load %String, ptr %clone, align 8
+  %access10 = getelementptr inbounds nuw %String, ptr %clone, i32 0, i32 2
+  %getmembervalue11 = load i64, ptr %access10, align 4
+  store i64 %getmembervalue8, ptr %access10, align 4
+  %string12 = load %String, ptr %string1, align 8
+  %access13 = getelementptr inbounds nuw %String, ptr %string1, i32 0, i32 2
+  %getmembervalue14 = load i64, ptr %access13, align 4
+  %add = add i64 %getmembervalue14, 1
+  %malloc_call = call ptr @malloc(i64 %add)
+  %d = alloca ptr, align 8
+  store ptr %malloc_call, ptr %d, align 8
+  %d15 = load ptr, ptr %d, align 8
+  %string16 = load %String, ptr %string1, align 8
+  %access17 = getelementptr inbounds nuw %String, ptr %string1, i32 0, i32 0
+  %getmembervalue18 = load ptr, ptr %access17, align 8
+  %string19 = load %String, ptr %string1, align 8
+  %access20 = getelementptr inbounds nuw %String, ptr %string1, i32 0, i32 1
+  %getmembervalue21 = load i64, ptr %access20, align 4
+  %add22 = add i64 %getmembervalue21, 1
+  call void @llvm.memcpy.p0.p0.i64(ptr align 1 %d15, ptr align 1 %getmembervalue18, i64 %add22, i1 false)
+  %d23 = load ptr, ptr %d, align 8
+  %clone24 = load %String, ptr %clone, align 8
+  %access25 = getelementptr inbounds nuw %String, ptr %clone, i32 0, i32 0
+  %getmembervalue26 = load ptr, ptr %access25, align 8
+  store ptr %d23, ptr %access25, align 8
+  %clone27 = load %String, ptr %clone, align 8
+  ret %String %clone27
 }
 
 define ptr @input_i64(i64 %n) {
@@ -1429,68 +1473,233 @@ entry:
   ret double %f_num9
 }
 
-define i32 @main() {
+define ptr @KeyMap_get(ptr %m, %String %key) {
 entry:
-  %ret_val = alloca i32, align 4
-  %calltmp = call i32 @_TOPLEVEL_()
-  %ans = alloca i64, align 8
-  store i64 0, ptr %ans, align 4
-  %n = alloca i64, align 8
-  store i64 0, ptr %n, align 4
-  %scanf = call i32 (ptr, ...) @scanf(ptr @str_11, ptr %n)
-  %n1 = load i64, ptr %n, align 4
-  %calltmp2 = call ptr @input_i64(i64 %n1)
-  %a = alloca ptr, align 8
-  store ptr %calltmp2, ptr %a, align 8
-  %a3 = load ptr, ptr %a, align 8
-  %n4 = load i64, ptr %n, align 4
-  %calltmp5 = call %VecT @VecT_from(ptr %a3, i64 ptrtoint (ptr getelementptr (i64, ptr null, i32 1) to i64), i64 %n4)
-  %v = alloca %VecT, align 8
-  store %VecT %calltmp5, ptr %v, align 8
-  %m = alloca i64, align 8
-  store i64 0, ptr %m, align 4
-  %scanf6 = call i32 (ptr, ...) @scanf(ptr @str_12, ptr %m)
-  %m7 = load i64, ptr %m, align 4
-  %calltmp8 = call ptr @input_i64(i64 %m7)
-  %b = alloca ptr, align 8
-  store ptr %calltmp8, ptr %b, align 8
-  %b9 = load ptr, ptr %b, align 8
-  %m10 = load i64, ptr %m, align 4
-  %calltmp11 = call %VecT @VecT_from(ptr %b9, i64 ptrtoint (ptr getelementptr (i64, ptr null, i32 1) to i64), i64 %m10)
-  %v2 = alloca %VecT, align 8
-  store %VecT %calltmp11, ptr %v2, align 8
-  %calltmp12 = call ptr @VecT_connect(ptr %v, ptr %v2)
+  %m1 = alloca ptr, align 8
+  store ptr %m, ptr %m1, align 8
+  %key2 = alloca %String, align 8
+  store %String %key, ptr %key2, align 8
+  %ret_val = alloca ptr, align 8
+  %left = alloca i64, align 8
+  store i64 0, ptr %left, align 4
+  %m3 = load ptr, ptr %m1, align 8
+  %access = getelementptr inbounds nuw %KeyMap, ptr %m3, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %sub = sub i64 %getmembervalue, 1
+  %right = alloca i64, align 8
+  store i64 %sub, ptr %right, align 4
+  %left4 = load i64, ptr %left, align 4
+  %right5 = load i64, ptr %right, align 4
+  %add = add i64 %left4, %right5
+  %div = sdiv i64 %add, 2
+  %mid = alloca i64, align 8
+  store i64 %div, ptr %mid, align 4
+  %ret = alloca ptr, align 8
+  store ptr null, ptr %ret, align 8
+  br label %loop_start-search
+
+loop_start-search:                                ; preds = %entry
+  br label %continue-search
+
+continue-search:                                  ; preds = %break-L, %loop_start-search
+  %left6 = load i64, ptr %left, align 4
+  %right7 = load i64, ptr %right, align 4
+  %sle = icmp sle i64 %left6, %right7
+  br i1 %sle, label %no_judge_continue-search, label %break-search
+
+no_judge_continue-search:                         ; preds = %continue-search
+  %left8 = load i64, ptr %left, align 4
+  %right9 = load i64, ptr %right, align 4
+  %add10 = add i64 %left8, %right9
+  %div11 = sdiv i64 %add10, 2
+  store i64 %div11, ptr %mid, align 4
+  %key12 = load %String, ptr %key2, align 8
+  %m13 = load ptr, ptr %m1, align 8
+  %access14 = getelementptr inbounds nuw %KeyMap, ptr %m13, i32 0, i32 0
+  %getmembervalue15 = load ptr, ptr %access14, align 8
+  %mid16 = load i64, ptr %mid, align 4
+  %idx_ptr = getelementptr %Entry, ptr %getmembervalue15, i64 %mid16
+  %"idx[]_load" = load %Entry, ptr %idx_ptr, align 8
+  %access17 = getelementptr inbounds nuw %Entry, ptr %idx_ptr, i32 0, i32 0
+  %getmembervalue18 = load %String, ptr %access17, align 8
+  %calltmp = call i64 @String_cmp(%String %key12, %String %getmembervalue18)
+  %cmp = alloca i64, align 8
+  store i64 %calltmp, ptr %cmp, align 4
+  br label %loop_start-ret
+
+break-search:                                     ; preds = %no_judge_continue-ret, %continue-search
+  %ret33 = load ptr, ptr %ret, align 8
+  ret ptr %ret33
+
+loop_start-ret:                                   ; preds = %no_judge_continue-search
+  br label %continue-ret
+
+continue-ret:                                     ; preds = %no_judge_continue-ret, %loop_start-ret
+  %cmp19 = load i64, ptr %cmp, align 4
+  %eq = icmp eq i64 %cmp19, 0
+  br i1 %eq, label %no_judge_continue-ret, label %break-ret
+
+no_judge_continue-ret:                            ; preds = %continue-ret
+  %m20 = load ptr, ptr %m1, align 8
+  %access21 = getelementptr inbounds nuw %KeyMap, ptr %m20, i32 0, i32 0
+  %getmembervalue22 = load ptr, ptr %access21, align 8
+  %mid23 = load i64, ptr %mid, align 4
+  %idx_ptr24 = getelementptr %Entry, ptr %getmembervalue22, i64 %mid23
+  %"idx[]_load25" = load %Entry, ptr %idx_ptr24, align 8
+  %access26 = getelementptr inbounds nuw %Entry, ptr %idx_ptr24, i32 0, i32 1
+  %getmembervalue27 = load ptr, ptr %access26, align 8
+  store ptr %getmembervalue27, ptr %ret, align 8
+  br label %break-search
+  br label %continue-ret
+
+break-ret:                                        ; preds = %continue-ret
+  br label %loop_start-R
+
+loop_start-R:                                     ; preds = %break-ret
+  br label %continue-R
+
+continue-R:                                       ; preds = %no_judge_continue-R, %loop_start-R
+  %cmp28 = load i64, ptr %cmp, align 4
+  %slt = icmp slt i64 %cmp28, 0
+  br i1 %slt, label %no_judge_continue-R, label %break-R
+
+no_judge_continue-R:                              ; preds = %continue-R
+  %mid29 = load i64, ptr %mid, align 4
+  %sub30 = sub i64 %mid29, 1
+  store i64 %sub30, ptr %right, align 4
+  br label %continue-R
+  br label %break-L
+
+break-R:                                          ; preds = %continue-R
+  br label %loop_start-L
+
+loop_start-L:                                     ; preds = %break-R
+  br label %continue-L
+
+continue-L:                                       ; preds = %no_judge_continue-L, %loop_start-L
+  br i1 true, label %no_judge_continue-L, label %break-L
+
+no_judge_continue-L:                              ; preds = %continue-L
+  %mid31 = load i64, ptr %mid, align 4
+  %add32 = add i64 %mid31, 1
+  store i64 %add32, ptr %left, align 4
+  br label %break-L
+  br label %continue-L
+
+break-L:                                          ; preds = %no_judge_continue-L, %continue-L, %no_judge_continue-R
+  br label %continue-search
+}
+
+define void @KeyMap_insert(ptr %m, %String %key, ptr %value) {
+entry:
+  %m1 = alloca ptr, align 8
+  store ptr %m, ptr %m1, align 8
+  %key2 = alloca %String, align 8
+  store %String %key, ptr %key2, align 8
+  %value3 = alloca ptr, align 8
+  store ptr %value, ptr %value3, align 8
+  %m4 = load ptr, ptr %m1, align 8
+  %access = getelementptr inbounds nuw %KeyMap, ptr %m4, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
   %i = alloca i64, align 8
-  store i64 0, ptr %i, align 4
+  store i64 %getmembervalue, ptr %i, align 4
   br label %loop_start-loop
 
 loop_start-loop:                                  ; preds = %entry
   br label %continue-loop
 
 continue-loop:                                    ; preds = %no_judge_continue-loop, %loop_start-loop
-  %i13 = load i64, ptr %i, align 4
-  %v14 = load %VecT, ptr %v, align 8
-  %access = getelementptr inbounds nuw %VecT, ptr %v, i32 0, i32 2
-  %getmembervalue = load i64, ptr %access, align 4
-  %slt = icmp slt i64 %i13, %getmembervalue
-  br i1 %slt, label %no_judge_continue-loop, label %break-loop
+  %i5 = load i64, ptr %i, align 4
+  %sgt = icmp sgt i64 %i5, 0
+  %key6 = load %String, ptr %key2, align 8
+  %m7 = load ptr, ptr %m1, align 8
+  %access8 = getelementptr inbounds nuw %KeyMap, ptr %m7, i32 0, i32 0
+  %getmembervalue9 = load ptr, ptr %access8, align 8
+  %i10 = load i64, ptr %i, align 4
+  %sub = sub i64 %i10, 1
+  %idx_ptr = getelementptr %Entry, ptr %getmembervalue9, i64 %sub
+  %"idx[]_load" = load %Entry, ptr %idx_ptr, align 8
+  %access11 = getelementptr inbounds nuw %Entry, ptr %idx_ptr, i32 0, i32 0
+  %getmembervalue12 = load %String, ptr %access11, align 8
+  %calltmp = call i64 @String_cmp(%String %key6, %String %getmembervalue12)
+  %slt = icmp slt i64 %calltmp, 0
+  %and = and i1 %sgt, %slt
+  br i1 %and, label %no_judge_continue-loop, label %break-loop
 
 no_judge_continue-loop:                           ; preds = %continue-loop
-  %i15 = load i64, ptr %i, align 4
-  %calltmp16 = call ptr @VecT_get(ptr %v, i64 %i15)
-  %deref = load i64, ptr %calltmp16, align 4
-  %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_13, i64 %deref)
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_14, ptr %fmt_buf)
-  %calltmp17 = call i64 @"++"(ptr %i)
+  %m13 = load ptr, ptr %m1, align 8
+  %access14 = getelementptr inbounds nuw %KeyMap, ptr %m13, i32 0, i32 0
+  %getmembervalue15 = load ptr, ptr %access14, align 8
+  %i16 = load i64, ptr %i, align 4
+  %sub17 = sub i64 %i16, 1
+  %idx_ptr18 = getelementptr %Entry, ptr %getmembervalue15, i64 %sub17
+  %"idx[]_load19" = load %Entry, ptr %idx_ptr18, align 8
+  %m20 = load ptr, ptr %m1, align 8
+  %access21 = getelementptr inbounds nuw %KeyMap, ptr %m20, i32 0, i32 0
+  %getmembervalue22 = load ptr, ptr %access21, align 8
+  %i23 = load i64, ptr %i, align 4
+  %idx_ptr24 = getelementptr %Entry, ptr %getmembervalue22, i64 %i23
+  %"idx[]_load25" = load %Entry, ptr %idx_ptr24, align 8
+  store %Entry %"idx[]_load19", ptr %idx_ptr24, align 8
+  %i26 = load i64, ptr %i, align 4
+  %sub27 = sub i64 %i26, 1
+  store i64 %sub27, ptr %i, align 4
   br label %continue-loop
 
 break-loop:                                       ; preds = %continue-loop
-  call void @VecT_free(ptr %v)
-  %ans18 = load i64, ptr %ans, align 4
-  %fmt_buf19 = alloca [128 x i8], align 1
-  %sprintf20 = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf19, ptr @str_15, i64 %ans18)
-  %printf21 = call i32 (ptr, ...) @printf(ptr @println_fmt_16, ptr %fmt_buf19)
+  %key28 = load %String, ptr %key2, align 8
+  %m29 = load ptr, ptr %m1, align 8
+  %access30 = getelementptr inbounds nuw %KeyMap, ptr %m29, i32 0, i32 0
+  %getmembervalue31 = load ptr, ptr %access30, align 8
+  %i32 = load i64, ptr %i, align 4
+  %idx_ptr33 = getelementptr %Entry, ptr %getmembervalue31, i64 %i32
+  %"idx[]_load34" = load %Entry, ptr %idx_ptr33, align 8
+  %access35 = getelementptr inbounds nuw %Entry, ptr %idx_ptr33, i32 0, i32 0
+  %getmembervalue36 = load %String, ptr %access35, align 8
+  store %String %key28, ptr %access35, align 8
+  %value37 = load ptr, ptr %value3, align 8
+  %m38 = load ptr, ptr %m1, align 8
+  %access39 = getelementptr inbounds nuw %KeyMap, ptr %m38, i32 0, i32 0
+  %getmembervalue40 = load ptr, ptr %access39, align 8
+  %i41 = load i64, ptr %i, align 4
+  %idx_ptr42 = getelementptr %Entry, ptr %getmembervalue40, i64 %i41
+  %"idx[]_load43" = load %Entry, ptr %idx_ptr42, align 8
+  %access44 = getelementptr inbounds nuw %Entry, ptr %idx_ptr42, i32 0, i32 1
+  %getmembervalue45 = load ptr, ptr %access44, align 8
+  store ptr %value37, ptr %access44, align 8
+  %m46 = load ptr, ptr %m1, align 8
+  %access47 = getelementptr inbounds nuw %KeyMap, ptr %m46, i32 0, i32 1
+  %getmembervalue48 = load i64, ptr %access47, align 4
+  %add = add i64 %getmembervalue48, 1
+  %m49 = load ptr, ptr %m1, align 8
+  %access50 = getelementptr inbounds nuw %KeyMap, ptr %m49, i32 0, i32 1
+  %getmembervalue51 = load i64, ptr %access50, align 4
+  store i64 %add, ptr %access50, align 4
+  ret void
+}
+
+define i32 @main() {
+entry:
+  %ret_val = alloca i32, align 4
+  %calltmp = call i32 @_TOPLEVEL_()
+  %ans = alloca i64, align 8
+  store i64 0, ptr %ans, align 4
+  %calltmp1 = call ptr @input_str()
+  %calltmp2 = call %String @String_from(ptr %calltmp1)
+  %a = alloca %String, align 8
+  store %String %calltmp2, ptr %a, align 8
+  %a3 = load %String, ptr %a, align 8
+  %calltmp4 = call %String @String_clone(%String %a3)
+  %clone = alloca %String, align 8
+  store %String %calltmp4, ptr %clone, align 8
+  call void @String_free(ptr %a)
+  %clone5 = load %String, ptr %clone, align 8
+  %access = getelementptr inbounds nuw %String, ptr %clone, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  %fmt_buf = alloca [128 x i8], align 1
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_11, ptr %getmembervalue)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_12, ptr %fmt_buf)
+  call void @String_free(ptr %clone)
   ret i32 0
 }
 
