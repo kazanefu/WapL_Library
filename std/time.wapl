@@ -36,7 +36,7 @@ fn Time_now():timespec{
     =(.(time,tv_sec),0);
     =(.(time,tv_nsec),0);
     #=(i,1,i64);
-    timespec_get(time, *_(&_(i),i32));
+    timespec_get(&_(time), *_(&_(i),i32));
     return time;
 
 }
