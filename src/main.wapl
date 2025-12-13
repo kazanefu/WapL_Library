@@ -5,8 +5,20 @@ fn main():i32{
     #=(n,_,i64);
     scanf("%lld",&_(n));
     #=(a,input_i64(n),*:i64);
+    #=(v,VecT_from(pmove(a),sizeof(i64),n),VecT);
 
+    #=(m,_,i64);    
+    scanf("%lld",&_(m));
+    #=(b,input_i64(m),*:i64);
+    #=(v2,VecT_from(pmove(b),sizeof(i64),m),VecT);
+
+    VecT_connect(&_(v),&_(v2));
+    #=(i,0,i64);
+    loopif:(<(i,.(v,len))){
+        println(format("%lld",*_(VecT_get(&_(v),i),i64)));
+        ++(&_(i));
+    }
+    VecT_free(&_(v));
     println(format("%lld",ans));
-    free(pmove(a));
     return 0s;
 }

@@ -51,13 +51,15 @@ fn VecT_from(&:T srcData,i64 e_size, i64 size):VecT{
 }
 
 fn VecT_connect(ptr:VecT &self,ptr:VecT value):ptr:VecT{
-    warptoif(<=(_>(&self,cap),+(_>(&self,len),_>(value,len))),capaover,push);
-        point capaover;
-            =(val(->(&self,data)),realloc(_>(&self,data),*(+(_>(&self,len),_>(value,len)),_>(&self,elem_size)),T));
-            =(val(->(&self,cap)),+(_>(&self,len),_>(value,len)));
-        warpto(push);
-    point push;
-    memcpy(ptr_add(_>(&self,data),_>(&self,len)),_>(value,data),*(_>(value,len),_>(value,elem_size)));
-    =(val(->(&self,len)),+(_>(&self,len),_>(value,len)));
+    #=(newlen,+(_>(&self,len),_>(value,len)),i64);
+    #=(needed, *(newlen, _>(&self,elem_size)),i64);
+    loopif:capaover(<=(_>(&self,cap),newlen)){
+        #=(newcap,*( newlen, 2 ),i64);
+        =(_>(&self,data),realloc(_>(&self,data), *(newcap,_>(&self,elem_size)),T));
+        =(_>(&self,cap),newcap);
+        warpto(break-capaover);
+    }
+    memcpy(ptr_add(_>(&self,data),*(_>(&self,len),_>(&self,elem_size))),_>(value,data),*(_>(value,len),_>(value,elem_size)));
+    =(_>(&self,len),newlen);
     return value;
 }

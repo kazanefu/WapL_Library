@@ -42,17 +42,18 @@ fn String_from(ptr:char c):String{
     return v;
 }
 
-fn String_push(ptr:String &self,ptr:String value):ptr:String{
-    warptoif(<=(_>(&self,cap),+(_>(&self,len),_>(value,len))),capaover,push);
-    point capaover;
-    =(val(->(&self,data)),realloc(_>(&self,data),+(*(+(+(_>(&self,len),_>(value,len)),1),2),1),char));
-    =(val(->(&self,cap)),*(+(+(_>(&self,len),_>(value,len)),1),2));
-    warpto(push);
-    point push;
-    memcpy(ptr_add(_>(&self,data),_>(&self,len)),_>(value,data),_>(value,len));
-    =(val(->(&self,len)),+(_>(&self,len),_>(value,len)));
-    =(index(val(->(&self,data)),val(->(&self,len))),'\0')
-    return value;
+fn String_push(&mut:String &self,&:String value):ptr:String{
+    #=(needed, +(_>(&self,len),_>(value,len)),i64);
+    loopif:capaover(<(_>(&self,cap),+(needed,1))){
+        #=(newcap,*( needed, 2 ),i64);
+        =(_>(&self,data),realloc(_>(&self,data), +( newcap, 1),char));
+        =(_>(&self,cap),newcap);
+        warpto(break-capaover);
+    }
+    memcpy(ptr_add(_>(&self,data),_>(&self,len)), _>(value,data), _>(value,len));
+    =(_>(&self,len),needed);
+    =([](val(->(&self,data)),val(->(&self,len))),'\0');
+    return &self;
 }
 
 fn String_get(ptr:String &self,i64 indx):char{
