@@ -3,12 +3,7 @@ use "./std/allstd.wapl"
 declare printf(ptr:char,...):i32;
 
 fn main():i32{
-    clear_cli_screen();
-    #=(readed,read_text_file(input_str()),String);
-
-    printf("%s\n",.(readed,data));
-    
-    String_free(&_(readed));
+    Complex_show(C*(Complex_new(/(1.0,2),/(sqrt(3.0),2)),Complex_new(/(1.0,2),/(sqrt(3.0),2))));
 
     return 0s;
 }

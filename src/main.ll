@@ -6,6 +6,7 @@ source_filename = "wapl_module"
 %timespec = type { i64, i64 }
 %KeyMap = type { ptr, i64, i64 }
 %Entry = type { %String, ptr }
+%Complex = type { double, double }
 
 @str_0 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
 @println_fmt_1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
@@ -24,7 +25,8 @@ source_filename = "wapl_module"
 @println_fmt_14 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @str_15 = private unnamed_addr constant [8 x i8] c"\1B[2J\1B[H\00", align 1
 @println_fmt_16 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_17 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_17 = private unnamed_addr constant [13 x i8] c"c = %g + %gi\00", align 1
+@println_fmt_18 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 declare i64 @strtol(ptr, ptr, i32)
 
@@ -1844,23 +1846,232 @@ entry:
   ret void
 }
 
+define %Complex @Complex_new(double %re, double %im) {
+entry:
+  %re1 = alloca double, align 8
+  store double %re, ptr %re1, align 8
+  %im2 = alloca double, align 8
+  store double %im, ptr %im2, align 8
+  %ret_val = alloca %Complex, align 8
+  %cplx = alloca %Complex, align 8
+  store %Complex zeroinitializer, ptr %cplx, align 8
+  %re3 = load double, ptr %re1, align 8
+  %cplx4 = load %Complex, ptr %cplx, align 8
+  %access = getelementptr inbounds nuw %Complex, ptr %cplx, i32 0, i32 0
+  %getmembervalue = load double, ptr %access, align 8
+  store double %re3, ptr %access, align 8
+  %im5 = load double, ptr %im2, align 8
+  %cplx6 = load %Complex, ptr %cplx, align 8
+  %access7 = getelementptr inbounds nuw %Complex, ptr %cplx, i32 0, i32 1
+  %getmembervalue8 = load double, ptr %access7, align 8
+  store double %im5, ptr %access7, align 8
+  %cplx9 = load %Complex, ptr %cplx, align 8
+  ret %Complex %cplx9
+}
+
+define void @Complex_show(%Complex %c) {
+entry:
+  %c1 = alloca %Complex, align 8
+  store %Complex %c, ptr %c1, align 8
+  %c2 = load %Complex, ptr %c1, align 8
+  %access = getelementptr inbounds nuw %Complex, ptr %c1, i32 0, i32 0
+  %getmembervalue = load double, ptr %access, align 8
+  %c3 = load %Complex, ptr %c1, align 8
+  %access4 = getelementptr inbounds nuw %Complex, ptr %c1, i32 0, i32 1
+  %getmembervalue5 = load double, ptr %access4, align 8
+  %fmt_buf = alloca [128 x i8], align 1
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_17, double %getmembervalue, double %getmembervalue5)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_18, ptr %fmt_buf)
+  ret void
+}
+
+define %Complex @"C+"(%Complex %a, %Complex %b) {
+entry:
+  %a1 = alloca %Complex, align 8
+  store %Complex %a, ptr %a1, align 8
+  %b2 = alloca %Complex, align 8
+  store %Complex %b, ptr %b2, align 8
+  %ret_val = alloca %Complex, align 8
+  %a3 = load %Complex, ptr %a1, align 8
+  %access = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 0
+  %getmembervalue = load double, ptr %access, align 8
+  %b4 = load %Complex, ptr %b2, align 8
+  %access5 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue6 = load double, ptr %access5, align 8
+  %fadd = fadd double %getmembervalue, %getmembervalue6
+  %a7 = load %Complex, ptr %a1, align 8
+  %access8 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 1
+  %getmembervalue9 = load double, ptr %access8, align 8
+  %b10 = load %Complex, ptr %b2, align 8
+  %access11 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue12 = load double, ptr %access11, align 8
+  %fadd13 = fadd double %getmembervalue9, %getmembervalue12
+  %calltmp = call %Complex @Complex_new(double %fadd, double %fadd13)
+  ret %Complex %calltmp
+}
+
+define %Complex @C-(%Complex %a, %Complex %b) {
+entry:
+  %a1 = alloca %Complex, align 8
+  store %Complex %a, ptr %a1, align 8
+  %b2 = alloca %Complex, align 8
+  store %Complex %b, ptr %b2, align 8
+  %ret_val = alloca %Complex, align 8
+  %a3 = load %Complex, ptr %a1, align 8
+  %access = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 0
+  %getmembervalue = load double, ptr %access, align 8
+  %b4 = load %Complex, ptr %b2, align 8
+  %access5 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue6 = load double, ptr %access5, align 8
+  %fsub = fsub double %getmembervalue, %getmembervalue6
+  %a7 = load %Complex, ptr %a1, align 8
+  %access8 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 1
+  %getmembervalue9 = load double, ptr %access8, align 8
+  %b10 = load %Complex, ptr %b2, align 8
+  %access11 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue12 = load double, ptr %access11, align 8
+  %fsub13 = fsub double %getmembervalue9, %getmembervalue12
+  %calltmp = call %Complex @Complex_new(double %fsub, double %fsub13)
+  ret %Complex %calltmp
+}
+
+define %Complex @"C*"(%Complex %a, %Complex %b) {
+entry:
+  %a1 = alloca %Complex, align 8
+  store %Complex %a, ptr %a1, align 8
+  %b2 = alloca %Complex, align 8
+  store %Complex %b, ptr %b2, align 8
+  %ret_val = alloca %Complex, align 8
+  %a3 = load %Complex, ptr %a1, align 8
+  %access = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 0
+  %getmembervalue = load double, ptr %access, align 8
+  %b4 = load %Complex, ptr %b2, align 8
+  %access5 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue6 = load double, ptr %access5, align 8
+  %fmul = fmul double %getmembervalue, %getmembervalue6
+  %a7 = load %Complex, ptr %a1, align 8
+  %access8 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 1
+  %getmembervalue9 = load double, ptr %access8, align 8
+  %b10 = load %Complex, ptr %b2, align 8
+  %access11 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue12 = load double, ptr %access11, align 8
+  %fmul13 = fmul double %getmembervalue9, %getmembervalue12
+  %fsub = fsub double %fmul, %fmul13
+  %a14 = load %Complex, ptr %a1, align 8
+  %access15 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 0
+  %getmembervalue16 = load double, ptr %access15, align 8
+  %b17 = load %Complex, ptr %b2, align 8
+  %access18 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue19 = load double, ptr %access18, align 8
+  %fmul20 = fmul double %getmembervalue16, %getmembervalue19
+  %a21 = load %Complex, ptr %a1, align 8
+  %access22 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 1
+  %getmembervalue23 = load double, ptr %access22, align 8
+  %b24 = load %Complex, ptr %b2, align 8
+  %access25 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue26 = load double, ptr %access25, align 8
+  %fmul27 = fmul double %getmembervalue23, %getmembervalue26
+  %fadd = fadd double %fmul20, %fmul27
+  %calltmp = call %Complex @Complex_new(double %fsub, double %fadd)
+  ret %Complex %calltmp
+}
+
+define %Complex @"C/"(%Complex %a, %Complex %b) {
+entry:
+  %a1 = alloca %Complex, align 8
+  store %Complex %a, ptr %a1, align 8
+  %b2 = alloca %Complex, align 8
+  store %Complex %b, ptr %b2, align 8
+  %ret_val = alloca %Complex, align 8
+  %b3 = load %Complex, ptr %b2, align 8
+  %access = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue = load double, ptr %access, align 8
+  %b4 = load %Complex, ptr %b2, align 8
+  %access5 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue6 = load double, ptr %access5, align 8
+  %fmul = fmul double %getmembervalue, %getmembervalue6
+  %b7 = load %Complex, ptr %b2, align 8
+  %access8 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue9 = load double, ptr %access8, align 8
+  %b10 = load %Complex, ptr %b2, align 8
+  %access11 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue12 = load double, ptr %access11, align 8
+  %fmul13 = fmul double %getmembervalue9, %getmembervalue12
+  %fadd = fadd double %fmul, %fmul13
+  %r = alloca double, align 8
+  store double %fadd, ptr %r, align 8
+  %b14 = load %Complex, ptr %b2, align 8
+  %access15 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue16 = load double, ptr %access15, align 8
+  %r17 = load double, ptr %r, align 8
+  %fdiv = fdiv double %getmembervalue16, %r17
+  %b18 = load %Complex, ptr %b2, align 8
+  %access19 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue20 = load double, ptr %access19, align 8
+  store double %fdiv, ptr %access19, align 8
+  %b21 = load %Complex, ptr %b2, align 8
+  %access22 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue23 = load double, ptr %access22, align 8
+  %r24 = load double, ptr %r, align 8
+  %fdiv25 = fdiv double %getmembervalue23, %r24
+  %fsub = fsub double 0.000000e+00, %fdiv25
+  %b26 = load %Complex, ptr %b2, align 8
+  %access27 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue28 = load double, ptr %access27, align 8
+  store double %fsub, ptr %access27, align 8
+  %a29 = load %Complex, ptr %a1, align 8
+  %access30 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 0
+  %getmembervalue31 = load double, ptr %access30, align 8
+  %b32 = load %Complex, ptr %b2, align 8
+  %access33 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue34 = load double, ptr %access33, align 8
+  %fmul35 = fmul double %getmembervalue31, %getmembervalue34
+  %a36 = load %Complex, ptr %a1, align 8
+  %access37 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 1
+  %getmembervalue38 = load double, ptr %access37, align 8
+  %b39 = load %Complex, ptr %b2, align 8
+  %access40 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue41 = load double, ptr %access40, align 8
+  %fmul42 = fmul double %getmembervalue38, %getmembervalue41
+  %fsub43 = fsub double %fmul35, %fmul42
+  %a44 = load %Complex, ptr %a1, align 8
+  %access45 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 0
+  %getmembervalue46 = load double, ptr %access45, align 8
+  %b47 = load %Complex, ptr %b2, align 8
+  %access48 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 1
+  %getmembervalue49 = load double, ptr %access48, align 8
+  %fmul50 = fmul double %getmembervalue46, %getmembervalue49
+  %a51 = load %Complex, ptr %a1, align 8
+  %access52 = getelementptr inbounds nuw %Complex, ptr %a1, i32 0, i32 1
+  %getmembervalue53 = load double, ptr %access52, align 8
+  %b54 = load %Complex, ptr %b2, align 8
+  %access55 = getelementptr inbounds nuw %Complex, ptr %b2, i32 0, i32 0
+  %getmembervalue56 = load double, ptr %access55, align 8
+  %fmul57 = fmul double %getmembervalue53, %getmembervalue56
+  %fadd58 = fadd double %fmul50, %fmul57
+  %calltmp = call %Complex @Complex_new(double %fsub43, double %fadd58)
+  ret %Complex %calltmp
+}
+
 declare i32 @printf.1(ptr, ...)
 
 define i32 @main() {
 entry:
   %ret_val = alloca i32, align 4
   %calltmp = call i32 @_TOPLEVEL_()
-  call void @clear_cli_screen()
-  %calltmp1 = call ptr @input_str()
-  %calltmp2 = call %String @read_text_file(ptr %calltmp1)
-  %readed = alloca %String, align 8
-  store %String %calltmp2, ptr %readed, align 8
-  %readed3 = load %String, ptr %readed, align 8
-  %access = getelementptr inbounds nuw %String, ptr %readed, i32 0, i32 0
-  %getmembervalue = load ptr, ptr %access, align 8
-  %calltmp4 = call i32 (ptr, ...) @printf(ptr @str_17, ptr %getmembervalue)
-  call void @String_free(ptr %readed)
+  %callintrinsic = call double @llvm.sqrt.f64(double 3.000000e+00)
+  %fdiv = fdiv double %callintrinsic, 2.000000e+00
+  %calltmp1 = call %Complex @Complex_new(double 5.000000e-01, double %fdiv)
+  %callintrinsic2 = call double @llvm.sqrt.f64(double 3.000000e+00)
+  %fdiv3 = fdiv double %callintrinsic2, 2.000000e+00
+  %calltmp4 = call %Complex @Complex_new(double 5.000000e-01, double %fdiv3)
+  %calltmp5 = call %Complex @"C*"(%Complex %calltmp1, %Complex %calltmp4)
+  call void @Complex_show(%Complex %calltmp5)
   ret i32 0
 }
 
+; Function Attrs: nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare double @llvm.sqrt.f64(double) #1
+
 attributes #0 = { nocallback nofree nounwind willreturn memory(argmem: readwrite) }
+attributes #1 = { nocallback nofree nosync nounwind speculatable willreturn memory(none) }

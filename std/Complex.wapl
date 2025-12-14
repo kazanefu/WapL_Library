@@ -1,0 +1,29 @@
+struct Complex{
+    f64 re,
+    f64 im
+}
+fn Complex_new(f64 re,f64 im):Complex{
+    #=(cplx, _, Complex);
+    =(.(cplx,re), re);
+    =(.(cplx,im), im);
+    return cplx;
+}
+fn Complex_show(Complex c){
+    println(format("c = %g + %gi",.(c,re),.(c,im)));
+}
+
+fn C+(Complex a,Complex b):Complex{
+    return Complex_new(+(.(a,re),.(b,re)),+(.(a,im),.(b,im)));
+}
+fn C-(Complex a,Complex b):Complex{
+    return Complex_new(-(.(a,re),.(b,re)),-(.(a,im),.(b,im)));
+}
+fn C*(Complex a,Complex b):Complex{
+    return Complex_new(-(*(.(a,re),.(b,re)),*(.(a,im),.(b,im))),+(*(.(a,re),.(b,im)),*(.(a,im),.(b,re))));
+}
+fn C/(Complex a,Complex b):Complex{
+    #=(r,+(*(.(b,re),.(b,re)), *(.(b,im),.(b,im))),f64);
+    =(.(b,re),/(.(b,re),r));
+    =(.(b,im),-(0.0,/(.(b,im),r)));
+    return Complex_new(-(*(.(a,re),.(b,re)),*(.(a,im),.(b,im))),+(*(.(a,re),.(b,im)),*(.(a,im),.(b,re))));
+}
