@@ -21,7 +21,7 @@ fn String_strlen(ptr:char c):i64{
     #=(i,0,i64);
     warpto(LoopStart);
     point LoopStart;
-    warptoif(==(index(c,i),'\0'),Break,InLoop);
+    warptoif(==([](c,i),'\0'),Break,InLoop);
     point InLoop;
         =(i,+(i,1));
     warpto(LoopStart);
@@ -38,7 +38,7 @@ fn String_from(ptr:char c):String{
     =(val(->(vp,len)),c_len);
     =(val(->(vp,cap)),c_len);
     memcpy(val(->(vp,data)),c,c_len);
-    =(index(val(->(vp,data)),val(->(vp,len))),'\0')
+    =([](val(->(vp,data)),val(->(vp,len))),'\0')
     return v;
 }
 
@@ -57,7 +57,7 @@ fn String_push(&mut:String &self,&:String value):ptr:String{
 }
 
 fn String_get(ptr:String &self,i64 indx):char{
-    return index(*_(->(&self,data)),indx);
+    return [](*_(->(&self,data)),indx);
 }
 
 fn String_free(ptr:String &self){
