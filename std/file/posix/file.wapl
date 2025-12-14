@@ -1,0 +1,61 @@
+use "./std/String.wapl"
+
+declare open(ptr:char ,i32 ,i32):i32;
+declare read(i32,ptr:char, i64):i64;
+declare close(i32):i32;
+declare lseek(i32,i64,i32):i64;
+
+fn read_text_file(&:char path):String{
+    #=(O_RDONLY,0s,i32);
+    #=(SEEK_SET,0s,i32);
+    #=(SEEK_END,2s,i32);
+
+    #=(fd, open(path, 0s, 0s), i32);
+
+    loopif:f(<(fd,0s)){
+        return String_new(0);
+        warpto(break-f);
+    }
+
+    #=(size, lseek(fd, 0, 2s), i64);
+
+    loopif:size_error(>(size,100000000)){println("The TextFile is Too Long");println(format("%lld",size));; warpto(break-size_error);}
+
+    lseek(fd, 0, 0s);                 
+
+    loopif:s(<=(size,0)){
+        close(fd);
+        return String_new(0);
+        warpto(break-s);
+    }
+    
+
+    #=(buf, malloc(+(size, 1),char), *:char);
+
+
+    #=(total, 0, i64);
+
+    loopif:r(<(total, size)){
+        #=(n, read(fd, ptr_add(buf, total), -(size, total)), i64);
+        loopif:e(<=(n, 0)){
+            warpto(break-r);   // EOF or error
+            warpto(break-e);
+        }
+        =(total, +(total, n));
+    }
+
+    
+
+    //#=(read_bytes, read(fd, buf, size), i64);
+
+    =( [](buf, total), '\0' );
+
+    close(fd);
+    
+
+    #=(ret, String_from(p&(buf)),String);
+    
+    free(pmove(buf));
+    return ret;
+
+}
