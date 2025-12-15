@@ -63,3 +63,13 @@ fn VecT_connect(ptr:VecT &self,ptr:VecT value):ptr:VecT{
     =(_>(&self,len),newlen);
     return value;
 }
+
+fn VecT_rangei64(i64 start,i64 end,i64 step):VecT{
+    #=(v,VecT_new(8,/(-(end,start),step)),VecT);
+    #=(i,start,i64);
+    loopif:(<(i,end)){
+        VecT_push(&_(v),&_(i));
+        =(i,+(i,step));
+    }
+    return v;
+}

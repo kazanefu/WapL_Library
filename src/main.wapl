@@ -10,11 +10,11 @@ fn main():i32{
 
     #=(i,0,i64);
     loopif:(<(i,n)){
-        KeyMap_insert(&_(keymap),[](a,i),&_(i));
+        KeyMap_insert_or_assign(&_(keymap),[](a,i),&_(i));
         ++(&_(i));
     }
     #=(i,0,i64);
-    loopif:(<(i,n)){
+    loopif:(<(i,.(keymap,size))){
         printf("%s\n",.(.([](.(keymap,entries),i),key),data));
         ++(&_(i));
     }

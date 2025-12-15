@@ -30,7 +30,6 @@ fn KeyMap_new(i64 val_size,i64 capa):KeyMap{
 
 fn KeyMap_get(&:KeyMap m, String key):ptr:T{
 
-    printf("%s\n",.(key,data));
     
     #=(left,0,i64);
     #=(right,-(_>(m,size),1),i64);
@@ -60,10 +59,47 @@ fn KeyMap_get(&:KeyMap m, String key):ptr:T{
 
 
     
-    if(==(ret,null()),printf("KeyMap failed to get"),0s);
+    // if(==(ret,null()),printf("KeyMap failed to get"),0s);
     
     return ret;
 }
+
+fn KeyMap_get_index(&:KeyMap m, String key):i64{
+
+    
+    #=(left,0,i64);
+    #=(right,-(_>(m,size),1),i64);
+    #=(mid,/(+(left,right),2),i64);
+    
+    #=(ret,-1,i64);
+    
+    
+
+    loopif:search(<=(left,right)){
+
+        =(mid,/(+(left,right),2));
+        #=(cmp,String_cmp(key,.([](_>(m,entries),mid),key)),i64);
+        loopif:ret(==(cmp,0)){
+            =(ret, mid);
+            warpto(break-search);
+        }
+        loopif:R(<(cmp,0)){
+            =(right,-(mid,1));
+            warpto(continue-search);
+        }
+        loopif:L(>(cmp,0)){
+            =(left,+(mid,1));
+            warpto(continue-search);
+        }
+    }
+
+
+    
+    // if(==(ret,null()),printf("KeyMap failed to get"),0s);
+    
+    return ret;
+}
+
 
 fn KeyMap_insert(&mut:KeyMap m, String key, ptr:T value){
     #=(newsize,+(_>(m,size),1),i64);
@@ -93,6 +129,48 @@ fn KeyMap_insert(&mut:KeyMap m, String key, ptr:T value){
     memcpy(valptr,value,_>(m,value_size));
     =(.([](_>(m,entries), i ),value),pmove(valptr));
     =(_>(m,size) , +(_>(m,size),1));
+}
+fn KeyMap_assign(&mut:KeyMap m, i64 index,ptr:T value):i32{
+    memcpy(.([](_>(m,entries), index ),value),value,_>(m,value_size));
+    return 1s;
+}
+
+fn KeyMap_insert_or_assign(&mut:KeyMap m, String key, ptr:T value):i32{
+
+    #=(index,KeyMap_get_index(m, key),i64);
+    loopif:(>=(index,0)){
+        KeyMap_assign(m, index,value);
+        return 0s;
+    }
+
+    #=(newsize,+(_>(m,size),1),i64);
+    #=(sz, sizeof(Entry),i64);
+    loopif:check_capa(>=(newsize,_>(m,capacity))){
+        #=(newcap,*(newsize,2),i64);
+        =(_>(m,entries),realloc(_>(m,entries),*(newcap,sz),Entry));
+        loopif:(==(_>(m,entries),null())){
+            println("KeyMap_insert: miss realloc");
+            exit(0s);
+        }
+        =(_>(m,capacity),newcap);
+        warpto(break-check_capa);
+    }
+    #=(i,_>(m,size),i64);
+
+    loopif:(&&( >(i,0) , <(String_cmp( key , .([](_>(m,entries),-(i,1)),key) ), 0 ) )){
+        =([](_>(m,entries), i ),[](_>(m,entries),-(i,1)));
+        =(i,-(i,1));
+    }
+    
+
+    
+    =(.([](_>(m,entries), i ),key),String_clone(key));
+
+    #=(valptr,malloc(_>(m,value_size),T),*:T);
+    memcpy(valptr,value,_>(m,value_size));
+    =(.([](_>(m,entries), i ),value),pmove(valptr));
+    =(_>(m,size) , +(_>(m,size),1));
+    return 0s;
 }
 
 fn KeyMap_free(&mut:KeyMap m){

@@ -8,13 +8,13 @@ source_filename = "wapl_module"
 %Entry = type { %String, ptr }
 %Complex = type { double, double }
 
-@str_0 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
-@println_fmt_1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_2 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
-@str_3 = private unnamed_addr constant [5 x i8] c"true\00", align 1
-@str_4 = private unnamed_addr constant [6 x i8] c"false\00", align 1
-@str_5 = private unnamed_addr constant [4 x i8] c"Yes\00", align 1
-@str_6 = private unnamed_addr constant [3 x i8] c"No\00", align 1
+@str_0 = private unnamed_addr constant [5 x i8] c"true\00", align 1
+@str_1 = private unnamed_addr constant [6 x i8] c"false\00", align 1
+@str_2 = private unnamed_addr constant [4 x i8] c"Yes\00", align 1
+@str_3 = private unnamed_addr constant [3 x i8] c"No\00", align 1
+@str_4 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
+@println_fmt_5 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_6 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
 @str_7 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
 @str_8 = private unnamed_addr constant [4 x i8] c"%lf\00", align 1
 @str_9 = private unnamed_addr constant [4 x i8] c" %c\00", align 1
@@ -23,8 +23,8 @@ source_filename = "wapl_module"
 @println_fmt_12 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @str_13 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
 @println_fmt_14 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_15 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_16 = private unnamed_addr constant [21 x i8] c"KeyMap failed to get\00", align 1
+@str_15 = private unnamed_addr constant [28 x i8] c"KeyMap_insert: miss realloc\00", align 1
+@println_fmt_16 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @str_17 = private unnamed_addr constant [28 x i8] c"KeyMap_insert: miss realloc\00", align 1
 @println_fmt_18 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @str_19 = private unnamed_addr constant [8 x i8] c"\1B[2J\1B[H\00", align 1
@@ -58,15 +58,6 @@ entry:
   ret i32 0
 }
 
-define ptr @SayHello() {
-entry:
-  %ret_val = alloca ptr, align 8
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_1, ptr @str_0)
-  %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_2)
-  ret ptr %fmt_buf
-}
-
 declare i32 @printf.1(ptr, ...)
 
 declare i32 @sprintf.2(ptr, ptr, ...)
@@ -86,7 +77,7 @@ if.else:                                          ; preds = %entry
   br label %if.merge
 
 if.merge:                                         ; preds = %if.else, %if.then
-  %if.result = phi ptr [ @str_3, %if.then ], [ @str_4, %if.else ]
+  %if.result = phi ptr [ @str_0, %if.then ], [ @str_1, %if.else ]
   ret ptr %if.result
 }
 
@@ -105,7 +96,7 @@ if.else:                                          ; preds = %entry
   br label %if.merge
 
 if.merge:                                         ; preds = %if.else, %if.then
-  %if.result = phi ptr [ @str_5, %if.then ], [ @str_6, %if.else ]
+  %if.result = phi ptr [ @str_2, %if.then ], [ @str_3, %if.else ]
   ret ptr %if.result
 }
 
@@ -116,6 +107,15 @@ entry:
   store ptr null, ptr %p, align 8
   %p1 = load ptr, ptr %p, align 8
   ret ptr %p1
+}
+
+define ptr @SayHello() {
+entry:
+  %ret_val = alloca ptr, align 8
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_5, ptr @str_4)
+  %fmt_buf = alloca [128 x i8], align 1
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_6)
+  ret ptr %fmt_buf
 }
 
 define %VecT @VecT_new(i64 %e_size, i64 %capa) {
@@ -407,6 +407,50 @@ break-capaover:                                   ; preds = %no_judge_continue-c
   store i64 %newlen52, ptr %access54, align 4
   %value56 = load ptr, ptr %value2, align 8
   ret ptr %value56
+}
+
+define %VecT @VecT_rangei64(i64 %start, i64 %end, i64 %step) {
+entry:
+  %start1 = alloca i64, align 8
+  store i64 %start, ptr %start1, align 4
+  %end2 = alloca i64, align 8
+  store i64 %end, ptr %end2, align 4
+  %step3 = alloca i64, align 8
+  store i64 %step, ptr %step3, align 4
+  %ret_val = alloca %VecT, align 8
+  %end4 = load i64, ptr %end2, align 4
+  %start5 = load i64, ptr %start1, align 4
+  %sub = sub i64 %end4, %start5
+  %step6 = load i64, ptr %step3, align 4
+  %div = sdiv i64 %sub, %step6
+  %calltmp = call %VecT @VecT_new(i64 8, i64 %div)
+  %v = alloca %VecT, align 8
+  store %VecT %calltmp, ptr %v, align 8
+  %start7 = load i64, ptr %start1, align 4
+  %i = alloca i64, align 8
+  store i64 %start7, ptr %i, align 4
+  br label %loop_start-loop
+
+loop_start-loop:                                  ; preds = %entry
+  br label %continue-loop
+
+continue-loop:                                    ; preds = %no_judge_continue-loop, %loop_start-loop
+  %i8 = load i64, ptr %i, align 4
+  %end9 = load i64, ptr %end2, align 4
+  %slt = icmp slt i64 %i8, %end9
+  br i1 %slt, label %no_judge_continue-loop, label %break-loop
+
+no_judge_continue-loop:                           ; preds = %continue-loop
+  %calltmp10 = call ptr @VecT_push(ptr %v, ptr %i)
+  %i11 = load i64, ptr %i, align 4
+  %step12 = load i64, ptr %step3, align 4
+  %add = add i64 %i11, %step12
+  store i64 %add, ptr %i, align 4
+  br label %continue-loop
+
+break-loop:                                       ; preds = %continue-loop
+  %v13 = load %VecT, ptr %v, align 8
+  ret %VecT %v13
 }
 
 declare i32 @strcmp(ptr, ptr)
@@ -1742,84 +1786,76 @@ entry:
   %key2 = alloca %String, align 8
   store %String %key, ptr %key2, align 8
   %ret_val = alloca ptr, align 8
-  %key3 = load %String, ptr %key2, align 8
-  %access = getelementptr inbounds nuw %String, ptr %key2, i32 0, i32 0
-  %getmembervalue = load ptr, ptr %access, align 8
-  %calltmp = call i32 (ptr, ...) @printf(ptr @str_15, ptr %getmembervalue)
   %left = alloca i64, align 8
   store i64 0, ptr %left, align 4
-  %m4 = load ptr, ptr %m1, align 8
-  %access5 = getelementptr inbounds nuw %KeyMap, ptr %m4, i32 0, i32 1
-  %getmembervalue6 = load i64, ptr %access5, align 4
-  %sub = sub i64 %getmembervalue6, 1
+  %m3 = load ptr, ptr %m1, align 8
+  %access = getelementptr inbounds nuw %KeyMap, ptr %m3, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %sub = sub i64 %getmembervalue, 1
   %right = alloca i64, align 8
   store i64 %sub, ptr %right, align 4
-  %left7 = load i64, ptr %left, align 4
-  %right8 = load i64, ptr %right, align 4
-  %add = add i64 %left7, %right8
+  %left4 = load i64, ptr %left, align 4
+  %right5 = load i64, ptr %right, align 4
+  %add = add i64 %left4, %right5
   %div = sdiv i64 %add, 2
   %mid = alloca i64, align 8
   store i64 %div, ptr %mid, align 4
-  %calltmp9 = call ptr @null()
+  %calltmp = call ptr @null()
   %ret = alloca ptr, align 8
-  store ptr %calltmp9, ptr %ret, align 8
+  store ptr %calltmp, ptr %ret, align 8
   br label %loop_start-search
 
 loop_start-search:                                ; preds = %entry
   br label %continue-search
 
 continue-search:                                  ; preds = %break-L, %no_judge_continue-L, %no_judge_continue-R, %loop_start-search
-  %left10 = load i64, ptr %left, align 4
-  %right11 = load i64, ptr %right, align 4
-  %sle = icmp sle i64 %left10, %right11
+  %left6 = load i64, ptr %left, align 4
+  %right7 = load i64, ptr %right, align 4
+  %sle = icmp sle i64 %left6, %right7
   br i1 %sle, label %no_judge_continue-search, label %break-search
 
 no_judge_continue-search:                         ; preds = %continue-search
-  %left12 = load i64, ptr %left, align 4
-  %right13 = load i64, ptr %right, align 4
-  %add14 = add i64 %left12, %right13
-  %div15 = sdiv i64 %add14, 2
-  store i64 %div15, ptr %mid, align 4
-  %key16 = load %String, ptr %key2, align 8
-  %m17 = load ptr, ptr %m1, align 8
-  %access18 = getelementptr inbounds nuw %KeyMap, ptr %m17, i32 0, i32 0
-  %getmembervalue19 = load ptr, ptr %access18, align 8
-  %mid20 = load i64, ptr %mid, align 4
-  %idx_ptr = getelementptr %Entry, ptr %getmembervalue19, i64 %mid20
+  %left8 = load i64, ptr %left, align 4
+  %right9 = load i64, ptr %right, align 4
+  %add10 = add i64 %left8, %right9
+  %div11 = sdiv i64 %add10, 2
+  store i64 %div11, ptr %mid, align 4
+  %key12 = load %String, ptr %key2, align 8
+  %m13 = load ptr, ptr %m1, align 8
+  %access14 = getelementptr inbounds nuw %KeyMap, ptr %m13, i32 0, i32 0
+  %getmembervalue15 = load ptr, ptr %access14, align 8
+  %mid16 = load i64, ptr %mid, align 4
+  %idx_ptr = getelementptr %Entry, ptr %getmembervalue15, i64 %mid16
   %"idx[]_load" = load %Entry, ptr %idx_ptr, align 8
-  %access21 = getelementptr inbounds nuw %Entry, ptr %idx_ptr, i32 0, i32 0
-  %getmembervalue22 = load %String, ptr %access21, align 8
-  %calltmp23 = call i64 @String_cmp(%String %key16, %String %getmembervalue22)
+  %access17 = getelementptr inbounds nuw %Entry, ptr %idx_ptr, i32 0, i32 0
+  %getmembervalue18 = load %String, ptr %access17, align 8
+  %calltmp19 = call i64 @String_cmp(%String %key12, %String %getmembervalue18)
   %cmp = alloca i64, align 8
-  store i64 %calltmp23, ptr %cmp, align 4
+  store i64 %calltmp19, ptr %cmp, align 4
   br label %loop_start-ret
 
 break-search:                                     ; preds = %no_judge_continue-ret, %continue-search
-  %ret39 = load ptr, ptr %ret, align 8
-  %calltmp40 = call ptr @null()
-  %ptr_a_i = ptrtoint ptr %ret39 to i64
-  %ptr_b_i = ptrtoint ptr %calltmp40 to i64
-  %eq41 = icmp eq i64 %ptr_a_i, %ptr_b_i
-  br i1 %eq41, label %if.then, label %if.else
+  %ret35 = load ptr, ptr %ret, align 8
+  ret ptr %ret35
 
 loop_start-ret:                                   ; preds = %no_judge_continue-search
   br label %continue-ret
 
 continue-ret:                                     ; preds = %no_judge_continue-ret, %loop_start-ret
-  %cmp24 = load i64, ptr %cmp, align 4
-  %eq = icmp eq i64 %cmp24, 0
+  %cmp20 = load i64, ptr %cmp, align 4
+  %eq = icmp eq i64 %cmp20, 0
   br i1 %eq, label %no_judge_continue-ret, label %break-ret
 
 no_judge_continue-ret:                            ; preds = %continue-ret
-  %m25 = load ptr, ptr %m1, align 8
-  %access26 = getelementptr inbounds nuw %KeyMap, ptr %m25, i32 0, i32 0
-  %getmembervalue27 = load ptr, ptr %access26, align 8
-  %mid28 = load i64, ptr %mid, align 4
-  %idx_ptr29 = getelementptr %Entry, ptr %getmembervalue27, i64 %mid28
-  %"idx[]_load30" = load %Entry, ptr %idx_ptr29, align 8
-  %access31 = getelementptr inbounds nuw %Entry, ptr %idx_ptr29, i32 0, i32 1
-  %getmembervalue32 = load ptr, ptr %access31, align 8
-  store ptr %getmembervalue32, ptr %ret, align 8
+  %m21 = load ptr, ptr %m1, align 8
+  %access22 = getelementptr inbounds nuw %KeyMap, ptr %m21, i32 0, i32 0
+  %getmembervalue23 = load ptr, ptr %access22, align 8
+  %mid24 = load i64, ptr %mid, align 4
+  %idx_ptr25 = getelementptr %Entry, ptr %getmembervalue23, i64 %mid24
+  %"idx[]_load26" = load %Entry, ptr %idx_ptr25, align 8
+  %access27 = getelementptr inbounds nuw %Entry, ptr %idx_ptr25, i32 0, i32 1
+  %getmembervalue28 = load ptr, ptr %access27, align 8
+  store ptr %getmembervalue28, ptr %ret, align 8
   br label %break-search
   br label %continue-ret
 
@@ -1830,14 +1866,14 @@ loop_start-R:                                     ; preds = %break-ret
   br label %continue-R
 
 continue-R:                                       ; preds = %no_judge_continue-R, %loop_start-R
-  %cmp33 = load i64, ptr %cmp, align 4
-  %slt = icmp slt i64 %cmp33, 0
+  %cmp29 = load i64, ptr %cmp, align 4
+  %slt = icmp slt i64 %cmp29, 0
   br i1 %slt, label %no_judge_continue-R, label %break-R
 
 no_judge_continue-R:                              ; preds = %continue-R
-  %mid34 = load i64, ptr %mid, align 4
-  %sub35 = sub i64 %mid34, 1
-  store i64 %sub35, ptr %right, align 4
+  %mid30 = load i64, ptr %mid, align 4
+  %sub31 = sub i64 %mid30, 1
+  store i64 %sub31, ptr %right, align 4
   br label %continue-search
   br label %continue-R
 
@@ -1848,31 +1884,131 @@ loop_start-L:                                     ; preds = %break-R
   br label %continue-L
 
 continue-L:                                       ; preds = %no_judge_continue-L, %loop_start-L
-  %cmp36 = load i64, ptr %cmp, align 4
-  %sgt = icmp sgt i64 %cmp36, 0
+  %cmp32 = load i64, ptr %cmp, align 4
+  %sgt = icmp sgt i64 %cmp32, 0
   br i1 %sgt, label %no_judge_continue-L, label %break-L
 
 no_judge_continue-L:                              ; preds = %continue-L
-  %mid37 = load i64, ptr %mid, align 4
-  %add38 = add i64 %mid37, 1
-  store i64 %add38, ptr %left, align 4
+  %mid33 = load i64, ptr %mid, align 4
+  %add34 = add i64 %mid33, 1
+  store i64 %add34, ptr %left, align 4
   br label %continue-search
   br label %continue-L
 
 break-L:                                          ; preds = %continue-L
   br label %continue-search
+}
 
-if.then:                                          ; preds = %break-search
-  %calltmp42 = call i32 (ptr, ...) @printf(ptr @str_16)
-  br label %if.merge
+define i64 @KeyMap_get_index(ptr %m, %String %key) {
+entry:
+  %m1 = alloca ptr, align 8
+  store ptr %m, ptr %m1, align 8
+  %key2 = alloca %String, align 8
+  store %String %key, ptr %key2, align 8
+  %ret_val = alloca i64, align 8
+  %left = alloca i64, align 8
+  store i64 0, ptr %left, align 4
+  %m3 = load ptr, ptr %m1, align 8
+  %access = getelementptr inbounds nuw %KeyMap, ptr %m3, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %sub = sub i64 %getmembervalue, 1
+  %right = alloca i64, align 8
+  store i64 %sub, ptr %right, align 4
+  %left4 = load i64, ptr %left, align 4
+  %right5 = load i64, ptr %right, align 4
+  %add = add i64 %left4, %right5
+  %div = sdiv i64 %add, 2
+  %mid = alloca i64, align 8
+  store i64 %div, ptr %mid, align 4
+  %ret = alloca i64, align 8
+  store i64 -1, ptr %ret, align 4
+  br label %loop_start-search
 
-if.else:                                          ; preds = %break-search
-  br label %if.merge
+loop_start-search:                                ; preds = %entry
+  br label %continue-search
 
-if.merge:                                         ; preds = %if.else, %if.then
-  %if.result = phi i32 [ %calltmp42, %if.then ], [ 0, %if.else ]
-  %ret43 = load ptr, ptr %ret, align 8
-  ret ptr %ret43
+continue-search:                                  ; preds = %break-L, %no_judge_continue-L, %no_judge_continue-R, %loop_start-search
+  %left6 = load i64, ptr %left, align 4
+  %right7 = load i64, ptr %right, align 4
+  %sle = icmp sle i64 %left6, %right7
+  br i1 %sle, label %no_judge_continue-search, label %break-search
+
+no_judge_continue-search:                         ; preds = %continue-search
+  %left8 = load i64, ptr %left, align 4
+  %right9 = load i64, ptr %right, align 4
+  %add10 = add i64 %left8, %right9
+  %div11 = sdiv i64 %add10, 2
+  store i64 %div11, ptr %mid, align 4
+  %key12 = load %String, ptr %key2, align 8
+  %m13 = load ptr, ptr %m1, align 8
+  %access14 = getelementptr inbounds nuw %KeyMap, ptr %m13, i32 0, i32 0
+  %getmembervalue15 = load ptr, ptr %access14, align 8
+  %mid16 = load i64, ptr %mid, align 4
+  %idx_ptr = getelementptr %Entry, ptr %getmembervalue15, i64 %mid16
+  %"idx[]_load" = load %Entry, ptr %idx_ptr, align 8
+  %access17 = getelementptr inbounds nuw %Entry, ptr %idx_ptr, i32 0, i32 0
+  %getmembervalue18 = load %String, ptr %access17, align 8
+  %calltmp = call i64 @String_cmp(%String %key12, %String %getmembervalue18)
+  %cmp = alloca i64, align 8
+  store i64 %calltmp, ptr %cmp, align 4
+  br label %loop_start-ret
+
+break-search:                                     ; preds = %no_judge_continue-ret, %continue-search
+  %ret27 = load i64, ptr %ret, align 4
+  ret i64 %ret27
+
+loop_start-ret:                                   ; preds = %no_judge_continue-search
+  br label %continue-ret
+
+continue-ret:                                     ; preds = %no_judge_continue-ret, %loop_start-ret
+  %cmp19 = load i64, ptr %cmp, align 4
+  %eq = icmp eq i64 %cmp19, 0
+  br i1 %eq, label %no_judge_continue-ret, label %break-ret
+
+no_judge_continue-ret:                            ; preds = %continue-ret
+  %mid20 = load i64, ptr %mid, align 4
+  store i64 %mid20, ptr %ret, align 4
+  br label %break-search
+  br label %continue-ret
+
+break-ret:                                        ; preds = %continue-ret
+  br label %loop_start-R
+
+loop_start-R:                                     ; preds = %break-ret
+  br label %continue-R
+
+continue-R:                                       ; preds = %no_judge_continue-R, %loop_start-R
+  %cmp21 = load i64, ptr %cmp, align 4
+  %slt = icmp slt i64 %cmp21, 0
+  br i1 %slt, label %no_judge_continue-R, label %break-R
+
+no_judge_continue-R:                              ; preds = %continue-R
+  %mid22 = load i64, ptr %mid, align 4
+  %sub23 = sub i64 %mid22, 1
+  store i64 %sub23, ptr %right, align 4
+  br label %continue-search
+  br label %continue-R
+
+break-R:                                          ; preds = %continue-R
+  br label %loop_start-L
+
+loop_start-L:                                     ; preds = %break-R
+  br label %continue-L
+
+continue-L:                                       ; preds = %no_judge_continue-L, %loop_start-L
+  %cmp24 = load i64, ptr %cmp, align 4
+  %sgt = icmp sgt i64 %cmp24, 0
+  br i1 %sgt, label %no_judge_continue-L, label %break-L
+
+no_judge_continue-L:                              ; preds = %continue-L
+  %mid25 = load i64, ptr %mid, align 4
+  %add26 = add i64 %mid25, 1
+  store i64 %add26, ptr %left, align 4
+  br label %continue-search
+  br label %continue-L
+
+break-L:                                          ; preds = %continue-L
+  br label %continue-search
 }
 
 define void @KeyMap_insert(ptr %m, %String %key, ptr %value) {
@@ -1944,7 +2080,7 @@ continue-loop:                                    ; preds = %no_judge_continue-l
   br i1 %eq, label %no_judge_continue-loop, label %break-loop
 
 no_judge_continue-loop:                           ; preds = %continue-loop
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_18, ptr @str_17)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_16, ptr @str_15)
   call void @exit(i32 0)
   br label %continue-loop
 
@@ -2050,6 +2186,233 @@ and.false:                                        ; preds = %continue-loop30
 and.merge:                                        ; preds = %and.false, %and.rhs
   %and.result = phi i1 [ %slt, %and.rhs ], [ false, %and.false ]
   br i1 %and.result, label %no_judge_continue-loop31, label %break-loop32
+}
+
+define i32 @KeyMap_assign(ptr %m, i64 %index, ptr %value) {
+entry:
+  %m1 = alloca ptr, align 8
+  store ptr %m, ptr %m1, align 8
+  %index2 = alloca i64, align 8
+  store i64 %index, ptr %index2, align 4
+  %value3 = alloca ptr, align 8
+  store ptr %value, ptr %value3, align 8
+  %ret_val = alloca i32, align 4
+  %m4 = load ptr, ptr %m1, align 8
+  %access = getelementptr inbounds nuw %KeyMap, ptr %m4, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  %index5 = load i64, ptr %index2, align 4
+  %idx_ptr = getelementptr %Entry, ptr %getmembervalue, i64 %index5
+  %"idx[]_load" = load %Entry, ptr %idx_ptr, align 8
+  %access6 = getelementptr inbounds nuw %Entry, ptr %idx_ptr, i32 0, i32 1
+  %getmembervalue7 = load ptr, ptr %access6, align 8
+  %value8 = load ptr, ptr %value3, align 8
+  %m9 = load ptr, ptr %m1, align 8
+  %access10 = getelementptr inbounds nuw %KeyMap, ptr %m9, i32 0, i32 3
+  %getmembervalue11 = load i64, ptr %access10, align 4
+  call void @llvm.memcpy.p0.p0.i64(ptr align 1 %getmembervalue7, ptr align 1 %value8, i64 %getmembervalue11, i1 false)
+  ret i32 1
+}
+
+define i32 @KeyMap_insert_or_assign(ptr %m, %String %key, ptr %value) {
+entry:
+  %m1 = alloca ptr, align 8
+  store ptr %m, ptr %m1, align 8
+  %key2 = alloca %String, align 8
+  store %String %key, ptr %key2, align 8
+  %value3 = alloca ptr, align 8
+  store ptr %value, ptr %value3, align 8
+  %ret_val = alloca i32, align 4
+  %m4 = load ptr, ptr %m1, align 8
+  %key5 = load %String, ptr %key2, align 8
+  %calltmp = call i64 @KeyMap_get_index(ptr %m4, %String %key5)
+  %index = alloca i64, align 8
+  store i64 %calltmp, ptr %index, align 4
+  br label %loop_start-loop
+
+loop_start-loop:                                  ; preds = %entry
+  br label %continue-loop
+
+continue-loop:                                    ; preds = %no_judge_continue-loop, %loop_start-loop
+  %index6 = load i64, ptr %index, align 4
+  %sge = icmp sge i64 %index6, 0
+  br i1 %sge, label %no_judge_continue-loop, label %break-loop
+
+no_judge_continue-loop:                           ; preds = %continue-loop
+  %m7 = load ptr, ptr %m1, align 8
+  %index8 = load i64, ptr %index, align 4
+  %value9 = load ptr, ptr %value3, align 8
+  %calltmp10 = call i32 @KeyMap_assign(ptr %m7, i64 %index8, ptr %value9)
+  ret i32 0
+  br label %continue-loop
+
+break-loop:                                       ; preds = %continue-loop
+  %m11 = load ptr, ptr %m1, align 8
+  %access = getelementptr inbounds nuw %KeyMap, ptr %m11, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %add = add i64 %getmembervalue, 1
+  %newsize = alloca i64, align 8
+  store i64 %add, ptr %newsize, align 4
+  %sz = alloca i64, align 8
+  store i64 ptrtoint (ptr getelementptr (%Entry, ptr null, i32 1) to i64), ptr %sz, align 4
+  br label %loop_start-check_capa
+
+loop_start-check_capa:                            ; preds = %break-loop
+  br label %continue-check_capa
+
+continue-check_capa:                              ; preds = %break-loop30, %loop_start-check_capa
+  %newsize12 = load i64, ptr %newsize, align 4
+  %m13 = load ptr, ptr %m1, align 8
+  %access14 = getelementptr inbounds nuw %KeyMap, ptr %m13, i32 0, i32 2
+  %getmembervalue15 = load i64, ptr %access14, align 4
+  %sge16 = icmp sge i64 %newsize12, %getmembervalue15
+  br i1 %sge16, label %no_judge_continue-check_capa, label %break-check_capa
+
+no_judge_continue-check_capa:                     ; preds = %continue-check_capa
+  %newsize17 = load i64, ptr %newsize, align 4
+  %mul = mul i64 %newsize17, 2
+  %newcap = alloca i64, align 8
+  store i64 %mul, ptr %newcap, align 4
+  %m18 = load ptr, ptr %m1, align 8
+  %access19 = getelementptr inbounds nuw %KeyMap, ptr %m18, i32 0, i32 0
+  %getmembervalue20 = load ptr, ptr %access19, align 8
+  %newcap21 = load i64, ptr %newcap, align 4
+  %sz22 = load i64, ptr %sz, align 4
+  %mul23 = mul i64 %newcap21, %sz22
+  %realloc_call = call ptr @realloc(ptr %getmembervalue20, i64 %mul23)
+  %m24 = load ptr, ptr %m1, align 8
+  %access25 = getelementptr inbounds nuw %KeyMap, ptr %m24, i32 0, i32 0
+  %getmembervalue26 = load ptr, ptr %access25, align 8
+  store ptr %realloc_call, ptr %access25, align 8
+  br label %loop_start-loop27
+
+break-check_capa:                                 ; preds = %break-loop30, %continue-check_capa
+  %m39 = load ptr, ptr %m1, align 8
+  %access40 = getelementptr inbounds nuw %KeyMap, ptr %m39, i32 0, i32 1
+  %getmembervalue41 = load i64, ptr %access40, align 4
+  %i = alloca i64, align 8
+  store i64 %getmembervalue41, ptr %i, align 4
+  br label %loop_start-loop42
+
+loop_start-loop27:                                ; preds = %no_judge_continue-check_capa
+  br label %continue-loop28
+
+continue-loop28:                                  ; preds = %no_judge_continue-loop29, %loop_start-loop27
+  %m31 = load ptr, ptr %m1, align 8
+  %access32 = getelementptr inbounds nuw %KeyMap, ptr %m31, i32 0, i32 0
+  %getmembervalue33 = load ptr, ptr %access32, align 8
+  %calltmp34 = call ptr @null()
+  %ptr_a_i = ptrtoint ptr %getmembervalue33 to i64
+  %ptr_b_i = ptrtoint ptr %calltmp34 to i64
+  %eq = icmp eq i64 %ptr_a_i, %ptr_b_i
+  br i1 %eq, label %no_judge_continue-loop29, label %break-loop30
+
+no_judge_continue-loop29:                         ; preds = %continue-loop28
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_18, ptr @str_17)
+  call void @exit(i32 0)
+  br label %continue-loop28
+
+break-loop30:                                     ; preds = %continue-loop28
+  %newcap35 = load i64, ptr %newcap, align 4
+  %m36 = load ptr, ptr %m1, align 8
+  %access37 = getelementptr inbounds nuw %KeyMap, ptr %m36, i32 0, i32 2
+  %getmembervalue38 = load i64, ptr %access37, align 4
+  store i64 %newcap35, ptr %access37, align 4
+  br label %break-check_capa
+  br label %continue-check_capa
+
+loop_start-loop42:                                ; preds = %break-check_capa
+  br label %continue-loop43
+
+continue-loop43:                                  ; preds = %no_judge_continue-loop44, %loop_start-loop42
+  %i46 = load i64, ptr %i, align 4
+  %sgt = icmp sgt i64 %i46, 0
+  br i1 %sgt, label %and.rhs, label %and.false
+
+no_judge_continue-loop44:                         ; preds = %and.merge
+  %m55 = load ptr, ptr %m1, align 8
+  %access56 = getelementptr inbounds nuw %KeyMap, ptr %m55, i32 0, i32 0
+  %getmembervalue57 = load ptr, ptr %access56, align 8
+  %i58 = load i64, ptr %i, align 4
+  %sub59 = sub i64 %i58, 1
+  %idx_ptr60 = getelementptr %Entry, ptr %getmembervalue57, i64 %sub59
+  %"idx[]_load61" = load %Entry, ptr %idx_ptr60, align 8
+  %m62 = load ptr, ptr %m1, align 8
+  %access63 = getelementptr inbounds nuw %KeyMap, ptr %m62, i32 0, i32 0
+  %getmembervalue64 = load ptr, ptr %access63, align 8
+  %i65 = load i64, ptr %i, align 4
+  %idx_ptr66 = getelementptr %Entry, ptr %getmembervalue64, i64 %i65
+  %"idx[]_load67" = load %Entry, ptr %idx_ptr66, align 8
+  store %Entry %"idx[]_load61", ptr %idx_ptr66, align 8
+  %i68 = load i64, ptr %i, align 4
+  %sub69 = sub i64 %i68, 1
+  store i64 %sub69, ptr %i, align 4
+  br label %continue-loop43
+
+break-loop45:                                     ; preds = %and.merge
+  %key70 = load %String, ptr %key2, align 8
+  %calltmp71 = call %String @String_clone(%String %key70)
+  %m72 = load ptr, ptr %m1, align 8
+  %access73 = getelementptr inbounds nuw %KeyMap, ptr %m72, i32 0, i32 0
+  %getmembervalue74 = load ptr, ptr %access73, align 8
+  %i75 = load i64, ptr %i, align 4
+  %idx_ptr76 = getelementptr %Entry, ptr %getmembervalue74, i64 %i75
+  %"idx[]_load77" = load %Entry, ptr %idx_ptr76, align 8
+  %access78 = getelementptr inbounds nuw %Entry, ptr %idx_ptr76, i32 0, i32 0
+  %getmembervalue79 = load %String, ptr %access78, align 8
+  store %String %calltmp71, ptr %access78, align 8
+  %m80 = load ptr, ptr %m1, align 8
+  %access81 = getelementptr inbounds nuw %KeyMap, ptr %m80, i32 0, i32 3
+  %getmembervalue82 = load i64, ptr %access81, align 4
+  %malloc_call = call ptr @malloc(i64 %getmembervalue82)
+  %valptr = alloca ptr, align 8
+  store ptr %malloc_call, ptr %valptr, align 8
+  %valptr83 = load ptr, ptr %valptr, align 8
+  %value84 = load ptr, ptr %value3, align 8
+  %m85 = load ptr, ptr %m1, align 8
+  %access86 = getelementptr inbounds nuw %KeyMap, ptr %m85, i32 0, i32 3
+  %getmembervalue87 = load i64, ptr %access86, align 4
+  call void @llvm.memcpy.p0.p0.i64(ptr align 1 %valptr83, ptr align 1 %value84, i64 %getmembervalue87, i1 false)
+  %valptr88 = load ptr, ptr %valptr, align 8
+  %m89 = load ptr, ptr %m1, align 8
+  %access90 = getelementptr inbounds nuw %KeyMap, ptr %m89, i32 0, i32 0
+  %getmembervalue91 = load ptr, ptr %access90, align 8
+  %i92 = load i64, ptr %i, align 4
+  %idx_ptr93 = getelementptr %Entry, ptr %getmembervalue91, i64 %i92
+  %"idx[]_load94" = load %Entry, ptr %idx_ptr93, align 8
+  %access95 = getelementptr inbounds nuw %Entry, ptr %idx_ptr93, i32 0, i32 1
+  %getmembervalue96 = load ptr, ptr %access95, align 8
+  store ptr %valptr88, ptr %access95, align 8
+  %m97 = load ptr, ptr %m1, align 8
+  %access98 = getelementptr inbounds nuw %KeyMap, ptr %m97, i32 0, i32 1
+  %getmembervalue99 = load i64, ptr %access98, align 4
+  %add100 = add i64 %getmembervalue99, 1
+  %m101 = load ptr, ptr %m1, align 8
+  %access102 = getelementptr inbounds nuw %KeyMap, ptr %m101, i32 0, i32 1
+  %getmembervalue103 = load i64, ptr %access102, align 4
+  store i64 %add100, ptr %access102, align 4
+  ret i32 0
+
+and.rhs:                                          ; preds = %continue-loop43
+  %key47 = load %String, ptr %key2, align 8
+  %m48 = load ptr, ptr %m1, align 8
+  %access49 = getelementptr inbounds nuw %KeyMap, ptr %m48, i32 0, i32 0
+  %getmembervalue50 = load ptr, ptr %access49, align 8
+  %i51 = load i64, ptr %i, align 4
+  %sub = sub i64 %i51, 1
+  %idx_ptr = getelementptr %Entry, ptr %getmembervalue50, i64 %sub
+  %"idx[]_load" = load %Entry, ptr %idx_ptr, align 8
+  %access52 = getelementptr inbounds nuw %Entry, ptr %idx_ptr, i32 0, i32 0
+  %getmembervalue53 = load %String, ptr %access52, align 8
+  %calltmp54 = call i64 @String_cmp(%String %key47, %String %getmembervalue53)
+  %slt = icmp slt i64 %calltmp54, 0
+  br label %and.merge
+
+and.false:                                        ; preds = %continue-loop43
+  br label %and.merge
+
+and.merge:                                        ; preds = %and.false, %and.rhs
+  %and.result = phi i1 [ %slt, %and.rhs ], [ false, %and.false ]
+  br i1 %and.result, label %no_judge_continue-loop44, label %break-loop45
 }
 
 define void @KeyMap_free(ptr %m) {
@@ -2351,82 +2714,84 @@ no_judge_continue-loop:                           ; preds = %continue-loop
   %i8 = load i64, ptr %i, align 4
   %idx_ptr = getelementptr %String, ptr %a7, i64 %i8
   %"idx[]_load" = load %String, ptr %idx_ptr, align 8
-  call void @KeyMap_insert(ptr %keymap, %String %"idx[]_load", ptr %i)
-  %calltmp9 = call i64 @"++"(ptr %i)
+  %calltmp9 = call i32 @KeyMap_insert_or_assign(ptr %keymap, %String %"idx[]_load", ptr %i)
+  %calltmp10 = call i64 @"++"(ptr %i)
   br label %continue-loop
 
 break-loop:                                       ; preds = %continue-loop
-  %i10 = alloca i64, align 8
-  store i64 0, ptr %i10, align 4
-  br label %loop_start-loop11
+  %i11 = alloca i64, align 8
+  store i64 0, ptr %i11, align 4
+  br label %loop_start-loop12
 
-loop_start-loop11:                                ; preds = %break-loop
-  br label %continue-loop12
+loop_start-loop12:                                ; preds = %break-loop
+  br label %continue-loop13
 
-continue-loop12:                                  ; preds = %no_judge_continue-loop13, %loop_start-loop11
-  %i15 = load i64, ptr %i10, align 4
-  %n16 = load i64, ptr %n, align 4
-  %slt17 = icmp slt i64 %i15, %n16
-  br i1 %slt17, label %no_judge_continue-loop13, label %break-loop14
+continue-loop13:                                  ; preds = %no_judge_continue-loop14, %loop_start-loop12
+  %i16 = load i64, ptr %i11, align 4
+  %keymap17 = load %KeyMap, ptr %keymap, align 8
+  %access = getelementptr inbounds nuw %KeyMap, ptr %keymap, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %slt18 = icmp slt i64 %i16, %getmembervalue
+  br i1 %slt18, label %no_judge_continue-loop14, label %break-loop15
 
-no_judge_continue-loop13:                         ; preds = %continue-loop12
-  %keymap18 = load %KeyMap, ptr %keymap, align 8
-  %access = getelementptr inbounds nuw %KeyMap, ptr %keymap, i32 0, i32 0
-  %getmembervalue = load ptr, ptr %access, align 8
-  %i19 = load i64, ptr %i10, align 4
-  %idx_ptr20 = getelementptr %Entry, ptr %getmembervalue, i64 %i19
-  %"idx[]_load21" = load %Entry, ptr %idx_ptr20, align 8
-  %access22 = getelementptr inbounds nuw %Entry, ptr %idx_ptr20, i32 0, i32 0
-  %getmembervalue23 = load %String, ptr %access22, align 8
-  %access24 = getelementptr inbounds nuw %String, ptr %access22, i32 0, i32 0
-  %getmembervalue25 = load ptr, ptr %access24, align 8
-  %calltmp26 = call i32 (ptr, ...) @printf(ptr @str_24, ptr %getmembervalue25)
-  %calltmp27 = call i64 @"++"(ptr %i10)
-  br label %continue-loop12
+no_judge_continue-loop14:                         ; preds = %continue-loop13
+  %keymap19 = load %KeyMap, ptr %keymap, align 8
+  %access20 = getelementptr inbounds nuw %KeyMap, ptr %keymap, i32 0, i32 0
+  %getmembervalue21 = load ptr, ptr %access20, align 8
+  %i22 = load i64, ptr %i11, align 4
+  %idx_ptr23 = getelementptr %Entry, ptr %getmembervalue21, i64 %i22
+  %"idx[]_load24" = load %Entry, ptr %idx_ptr23, align 8
+  %access25 = getelementptr inbounds nuw %Entry, ptr %idx_ptr23, i32 0, i32 0
+  %getmembervalue26 = load %String, ptr %access25, align 8
+  %access27 = getelementptr inbounds nuw %String, ptr %access25, i32 0, i32 0
+  %getmembervalue28 = load ptr, ptr %access27, align 8
+  %calltmp29 = call i32 (ptr, ...) @printf(ptr @str_24, ptr %getmembervalue28)
+  %calltmp30 = call i64 @"++"(ptr %i11)
+  br label %continue-loop13
 
-break-loop14:                                     ; preds = %continue-loop12
-  %i28 = alloca i64, align 8
-  store i64 0, ptr %i28, align 4
-  br label %loop_start-loop29
+break-loop15:                                     ; preds = %continue-loop13
+  %i31 = alloca i64, align 8
+  store i64 0, ptr %i31, align 4
+  br label %loop_start-loop32
 
-loop_start-loop29:                                ; preds = %break-loop14
-  br label %continue-loop30
+loop_start-loop32:                                ; preds = %break-loop15
+  br label %continue-loop33
 
-continue-loop30:                                  ; preds = %no_judge_continue-loop31, %loop_start-loop29
-  %i33 = load i64, ptr %i28, align 4
-  %n34 = load i64, ptr %n, align 4
-  %slt35 = icmp slt i64 %i33, %n34
-  br i1 %slt35, label %no_judge_continue-loop31, label %break-loop32
+continue-loop33:                                  ; preds = %no_judge_continue-loop34, %loop_start-loop32
+  %i36 = load i64, ptr %i31, align 4
+  %n37 = load i64, ptr %n, align 4
+  %slt38 = icmp slt i64 %i36, %n37
+  br i1 %slt38, label %no_judge_continue-loop34, label %break-loop35
 
-no_judge_continue-loop31:                         ; preds = %continue-loop30
-  %a36 = load ptr, ptr %a, align 8
-  %i37 = load i64, ptr %i28, align 4
-  %idx_ptr38 = getelementptr %String, ptr %a36, i64 %i37
-  %"idx[]_load39" = load %String, ptr %idx_ptr38, align 8
-  %access40 = getelementptr inbounds nuw %String, ptr %idx_ptr38, i32 0, i32 0
-  %getmembervalue41 = load ptr, ptr %access40, align 8
-  %a42 = load ptr, ptr %a, align 8
-  %i43 = load i64, ptr %i28, align 4
-  %idx_ptr44 = getelementptr %String, ptr %a42, i64 %i43
-  %"idx[]_load45" = load %String, ptr %idx_ptr44, align 8
-  %calltmp46 = call ptr @KeyMap_get(ptr %keymap, %String %"idx[]_load45")
-  %deref = load i64, ptr %calltmp46, align 4
-  %calltmp47 = call i32 (ptr, ...) @printf(ptr @str_25, ptr %getmembervalue41, i64 %deref)
-  %a48 = load ptr, ptr %a, align 8
-  %i49 = load i64, ptr %i28, align 4
-  %idx_ptr50 = getelementptr %String, ptr %a48, i64 %i49
-  %"idx[]_load51" = load %String, ptr %idx_ptr50, align 8
-  call void @String_free(ptr %idx_ptr50)
-  %calltmp52 = call i64 @"++"(ptr %i28)
-  br label %continue-loop30
+no_judge_continue-loop34:                         ; preds = %continue-loop33
+  %a39 = load ptr, ptr %a, align 8
+  %i40 = load i64, ptr %i31, align 4
+  %idx_ptr41 = getelementptr %String, ptr %a39, i64 %i40
+  %"idx[]_load42" = load %String, ptr %idx_ptr41, align 8
+  %access43 = getelementptr inbounds nuw %String, ptr %idx_ptr41, i32 0, i32 0
+  %getmembervalue44 = load ptr, ptr %access43, align 8
+  %a45 = load ptr, ptr %a, align 8
+  %i46 = load i64, ptr %i31, align 4
+  %idx_ptr47 = getelementptr %String, ptr %a45, i64 %i46
+  %"idx[]_load48" = load %String, ptr %idx_ptr47, align 8
+  %calltmp49 = call ptr @KeyMap_get(ptr %keymap, %String %"idx[]_load48")
+  %deref = load i64, ptr %calltmp49, align 4
+  %calltmp50 = call i32 (ptr, ...) @printf(ptr @str_25, ptr %getmembervalue44, i64 %deref)
+  %a51 = load ptr, ptr %a, align 8
+  %i52 = load i64, ptr %i31, align 4
+  %idx_ptr53 = getelementptr %String, ptr %a51, i64 %i52
+  %"idx[]_load54" = load %String, ptr %idx_ptr53, align 8
+  call void @String_free(ptr %idx_ptr53)
+  %calltmp55 = call i64 @"++"(ptr %i31)
+  br label %continue-loop33
 
-break-loop32:                                     ; preds = %continue-loop30
-  %ans53 = load i64, ptr %ans, align 4
+break-loop35:                                     ; preds = %continue-loop33
+  %ans56 = load i64, ptr %ans, align 4
   %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_26, i64 %ans53)
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_26, i64 %ans56)
   %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_27, ptr %fmt_buf)
-  %a54 = load ptr, ptr %a, align 8
-  call void @free(ptr %a54)
+  %a57 = load ptr, ptr %a, align 8
+  call void @free(ptr %a57)
   ret i32 0
 }
 
