@@ -1,22 +1,47 @@
 use "./std/String.wapl"
+use "./std/utility.wapl";
 
+declare exit(i32):void;
 struct Entry{
     String key,
-    ptr:T value
+    *:T value
 }
 struct KeyMap{
-    ptr:Entry entries,
+    *:Entry entries,
     i64 size,
-    i64 capacity
+    i64 capacity,
+    i64 value_size
+}
+
+fn KeyMap_new(i64 val_size,i64 capa):KeyMap{
+    #=(keymap,_,KeyMap);
+
+    =(.(keymap,size),0);
+    =(.(keymap,capacity),capa);
+    =(.(keymap,value_size),val_size);
+    
+    #=(sz, sizeof(Entry),i64);
+    #=(entries,malloc(*(sz,capa),Entry),*:Entry);
+
+    =(.(keymap,entries),pmove(entries));
+
+    return keymap;    
 }
 
 fn KeyMap_get(&:KeyMap m, String key):ptr:T{
+
+    printf("%s\n",.(key,data));
+    
     #=(left,0,i64);
     #=(right,-(_>(m,size),1),i64);
     #=(mid,/(+(left,right),2),i64);
-    #=(ret,_,ptr:T);
+    
+    #=(ret,null(),ptr:T);
+    
+    
 
     loopif:search(<=(left,right)){
+
         =(mid,/(+(left,right),2));
         #=(cmp,String_cmp(key,.([](_>(m,entries),mid),key)),i64);
         loopif:ret(==(cmp,0)){
@@ -25,23 +50,57 @@ fn KeyMap_get(&:KeyMap m, String key):ptr:T{
         }
         loopif:R(<(cmp,0)){
             =(right,-(mid,1));
-            warpto(break-L);
+            warpto(continue-search);
         }
-        loopif:L(true){
+        loopif:L(>(cmp,0)){
             =(left,+(mid,1));
-            warpto(break-L);
+            warpto(continue-search);
         }
     }
+
+
+    
+    if(==(ret,null()),printf("KeyMap failed to get"),0s);
+    
     return ret;
 }
 
 fn KeyMap_insert(&mut:KeyMap m, String key, ptr:T value){
+    #=(newsize,+(_>(m,size),1),i64);
+    #=(sz, sizeof(Entry),i64);
+    loopif:check_capa(>=(newsize,_>(m,capacity))){
+        #=(newcap,*(newsize,2),i64);
+        =(_>(m,entries),realloc(_>(m,entries),*(newcap,sz),Entry));
+        loopif:(==(_>(m,entries),null())){
+            println("KeyMap_insert: miss realloc");
+            exit(0s);
+        }
+        =(_>(m,capacity),newcap);
+        warpto(break-check_capa);
+    }
     #=(i,_>(m,size),i64);
+
     loopif:(&&( >(i,0) , <(String_cmp( key , .([](_>(m,entries),-(i,1)),key) ), 0 ) )){
         =([](_>(m,entries), i ),[](_>(m,entries),-(i,1)));
         =(i,-(i,1));
     }
-    =(.([](_>(m,entries), i ),key),key);
-    =(.([](_>(m,entries), i ),value),value);
+    
+
+    
+    =(.([](_>(m,entries), i ),key),String_clone(key));
+
+    #=(valptr,malloc(_>(m,value_size),T),*:T);
+    memcpy(valptr,value,_>(m,value_size));
+    =(.([](_>(m,entries), i ),value),pmove(valptr));
     =(_>(m,size) , +(_>(m,size),1));
+}
+
+fn KeyMap_free(&mut:KeyMap m){
+    #=(i,0,i64);
+    loopif:(<(i,_>(m,size))){
+        free(pmove(.([](_>(m,entries),i),value)));
+        String_free(&_(.([](_>(m,entries),i),key)));
+        =(i,+(i,1));
+    }
+    free(pmove(_>(m,entries)));
 }

@@ -7,20 +7,18 @@ fn main():i32{
     #=(a,input_Strings(n),*:String);
 
     #=(keymap,KeyMap_new(sizeof(i64),n),KeyMap);
+    println("new");
 
     #=(i,0,i64);
     loopif:(<(i,n)){
         KeyMap_insert(&_(keymap),[](a,i),&_(i));
+        printf("insert %lld",i);
         ++(&_(i));
     }
     #=(i,0,i64);
     loopif:(<(i,n)){
-        printf("%s\n",.(.([](.(keymap,entries),i),key),data));
-        ++(&_(i));
-    }
-    #=(i,0,i64);
-    loopif:(<(i,n)){
-        printf("%s: %lld\n",.([](a,i),data),*_(KeyMap_get(&_(keymap),[](a,i)),i64));
+        printf("%s: %lld",.([](a,i),data),*_(KeyMap_get(&_(keymap),[](a,i)),i64));
+        printf("get %lld",i);
         String_free(&_([](a,i)));
         ++(&_(i));
     }
