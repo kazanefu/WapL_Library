@@ -4,28 +4,9 @@ fn main():i32{
     #=(ans,0,i64);
     #=(n,_,i64);
     scanf("%lld",&_(n));
-    #=(a,input_Strings(n),*:String);
-
-    #=(keymap,KeyMap_new(sizeof(i64),n),KeyMap);
-
-    #=(i,0,i64);
-    loopif:(<(i,n)){
-        KeyMap_insert_or_assign(&_(keymap),[](a,i),&_(i));
-        ++(&_(i));
-    }
-    #=(i,0,i64);
-    loopif:(<(i,.(keymap,size))){
-        printf("%s\n",.(.([](.(keymap,entries),i),key),data));
-        ++(&_(i));
-    }
-    #=(i,0,i64);
-    loopif:(<(i,n)){
-        printf("%s: %lld\n",.([](a,i),data),*_(KeyMap_get(&_(keymap),[](a,i)),i64));
-        String_free(&_([](a,i)));
-        ++(&_(i));
-    }
+    //#=(a,input_i64(n),*:i64);
 
     println(format("%lld",ans));
-    free(pmove(a));
+    //free(pmove(a));
     return 0s;
 }

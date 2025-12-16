@@ -1,10 +1,10 @@
 declare printf(ptr:char,...):i32;
 declare sprintf(ptr:char, ptr:char,...):i32;
 fn bool_to_str(bool b):ptr:char{
-    return if(b,"true","false");
+    return ?(b,"true","false");
 }
 fn yes_no(bool b):ptr:char{
-    return if(b,"Yes","No");
+    return ?(b,"Yes","No");
 }
 fn null():ptr{
     #=(p,_,ptr);
