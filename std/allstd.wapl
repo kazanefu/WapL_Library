@@ -1,13 +1,13 @@
 use "./std/utility.wapl";
-// use "./std/HelloWorld.wapl";
-// use "./std/longinput.wapl";
-// use "./std/math.wapl";
-// use "./std/VecT.wapl";
-// use "./std/String.wapl";
-// use "./std/sort.wapl";
-// use "./std/assign_and_cal.wapl";
-// use "./std/time/posix/time.wapl";
-// use "./std/file/posix/file.wapl";
-// use "./std/keymap.wapl";
-// use "./std/cli_screen.wapl"
-// use "./std/Complex.wapl"
+use "./std/HelloWorld.wapl";
+use "./std/longinput.wapl";
+use "./std/math.wapl";
+use "./std/VecT.wapl";
+use "./std/String.wapl";
+use "./std/sort.wapl";
+use "./std/assign_and_cal.wapl";
+use "./std/time/posix/time.wapl";
+use "./std/file/posix/file.wapl";
+use "./std/keymap.wapl";
+use "./std/cli_screen.wapl"
+use "./std/Complex.wapl"
