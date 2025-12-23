@@ -36,9 +36,13 @@ source_filename = "wapl_module"
 @str_23 = private unnamed_addr constant [24 x i8] c"Error:unexpected unwrap\00", align 1
 @println_fmt_24 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @println_fmt_25 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_26 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@str_27 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@println_fmt_28 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_26 = private unnamed_addr constant [4 x i8] c"voi\00", align 1
+@println_fmt_27 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_28 = private unnamed_addr constant [2 x i8] c"d\00", align 1
+@println_fmt_29 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_30 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@str_31 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@println_fmt_32 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 declare i64 @strtol(ptr, ptr, i32)
 
@@ -64,6 +68,8 @@ entry:
 declare i32 @printf.1(ptr, ...)
 
 declare i32 @sprintf.2(ptr, ptr, ...)
+
+declare void @exit(i32)
 
 define ptr @bool_to_str(i1 %b) {
 entry:
@@ -110,6 +116,11 @@ entry:
   store ptr null, ptr %p, align 8
   %p1 = load ptr, ptr %p, align 8
   ret ptr %p1
+}
+
+define void @VOID() {
+entry:
+  ret void
 }
 
 define ptr @SayHello() {
@@ -1722,7 +1733,7 @@ break-e:                                          ; preds = %no_judge_continue-e
   br label %continue-r
 }
 
-declare void @exit(i32)
+declare void @exit.3(i32)
 
 define %KeyMap @KeyMap_new(i64 %val_size, i64 %capa) {
 entry:
@@ -2902,6 +2913,22 @@ if.else:                                          ; preds = %if.cond.0
   ret %Option %calltmp10
 }
 
+define void @voi() {
+entry:
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  br i1 true, label %if.then.0, label %if.end
+
+if.then.0:                                        ; preds = %if.cond.0
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_27, ptr @str_26)
+  ret void
+
+if.end:                                           ; preds = %if.cond.0
+  %printf1 = call i32 (ptr, ...) @printf(ptr @println_fmt_29, ptr @str_28)
+  ret void
+}
+
 define i32 @main() {
 entry:
   %ret_val = alloca i32, align 4
@@ -2910,11 +2937,12 @@ entry:
   store i64 0, ptr %ans, align 4
   %n = alloca i64, align 8
   store i64 0, ptr %n, align 4
-  %scanf = call i32 (ptr, ...) @scanf(ptr @str_26, ptr %n)
+  %scanf = call i32 (ptr, ...) @scanf(ptr @str_30, ptr %n)
+  call void @voi()
   %ans1 = load i64, ptr %ans, align 4
   %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_27, i64 %ans1)
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_28, ptr %fmt_buf)
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_31, i64 %ans1)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_32, ptr %fmt_buf)
   ret i32 0
 }
 

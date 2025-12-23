@@ -7,10 +7,10 @@ fn bool_to_str(bool b):ptr:char{
 fn yes_no(bool b):ptr:char{
     return ?(b,"Yes","No");
 }
-fn null():ptr{
-    #=(p,_,ptr);
+fn null():ptr:T{
+    #=(p,_,ptr:T);
     return p;
 }
 fn VOID():void{
-    
+
 }
