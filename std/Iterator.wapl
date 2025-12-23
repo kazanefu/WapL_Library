@@ -1,0 +1,38 @@
+use "./std/Option.wapl"
+struct Iterator{
+    ptr:T pointer,
+    ptr:T start,
+    ptr:T end,
+    i64 elem_size
+}
+
+fn iter_new(ptr:T pointer,ptr:T start,ptr:T end,i64 elem_size):Iterator{
+    #=(iter,_,Iterator);
+    =(.(iter,pointer),pointer);
+    =(.(iter,start),start);
+    =(.(iter,end),end);
+    =(.(iter,elem_size),elem_size);
+    return iter;
+}
+
+fn iter(ptr:T contents,ptr:T end,i64 elem_size):Iterator{
+    return iter_new(contents,contents,end,elem_size);
+}
+
+fn iter_next(&mut:Iterator self):Option{
+    #=(ret,_>(self,pointer),ptr:T);
+    if(<(_>(self,pointer),_>(self,end))){
+        =(_>(self,pointer),ptr_add(ret,_>(self,elem_size)));
+        return Some(ret);
+    }else{
+        return None();
+    }
+}
+fn iter_peek(&:Iterator self):Option{
+    #=(ret,_>(self,pointer),ptr:T);
+    if(<(_>(self,pointer),_>(self,end))){
+        return Some(ret);
+    }else{
+        return None();
+    }
+}

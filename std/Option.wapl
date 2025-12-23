@@ -1,0 +1,43 @@
+use "./std/utility.wapl";
+struct Option{
+    bool is_some,
+    ptr:T value
+}
+
+
+fn Option_new(bool is_some,ptr:T value):Option{
+    #=(ret,_,Option);
+    =(.(ret,is_some),is_some);
+    =(.(ret,value),value);
+    return ret;
+}
+
+fn Some(ptr:T value):Option{
+    return Option_new(true,value);
+}
+fn None():Option{
+    return Option_new(false,null());
+}
+
+fn is_some(Option self):bool{
+    return .(self,is_some);
+}
+
+fn unwrap(Option self):ptr:T{
+    if(.(self,is_some)){
+        return .(self,value);
+    }else{
+        println("Error:unexpected unwrap");
+        exit(1s);
+        return null();
+    }
+}
+fn expect(Option self,&:char error_message):ptr:T{
+    if(.(self,is_some)){
+        return .(self,value);
+    }else{
+        println(error_message);
+        exit(1s);
+        return null();
+    }
+}

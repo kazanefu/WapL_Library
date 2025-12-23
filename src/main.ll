@@ -7,6 +7,8 @@ source_filename = "wapl_module"
 %KeyMap = type { ptr, i64, i64, i64 }
 %Entry = type { %String, ptr }
 %Complex = type { double, double }
+%Option = type { i1, ptr }
+%Iterator = type { ptr, ptr, ptr, i64 }
 
 @str_0 = private unnamed_addr constant [5 x i8] c"true\00", align 1
 @str_1 = private unnamed_addr constant [6 x i8] c"false\00", align 1
@@ -31,9 +33,12 @@ source_filename = "wapl_module"
 @println_fmt_20 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @str_21 = private unnamed_addr constant [13 x i8] c"c = %g + %gi\00", align 1
 @println_fmt_22 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_23 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@str_24 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@str_23 = private unnamed_addr constant [24 x i8] c"Error:unexpected unwrap\00", align 1
+@println_fmt_24 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @println_fmt_25 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_26 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@str_27 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@println_fmt_28 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 declare i64 @strtol(ptr, ptr, i32)
 
@@ -2659,6 +2664,244 @@ entry:
   ret %Complex %calltmp
 }
 
+define %Option @Option_new(i1 %is_some, ptr %value) {
+entry:
+  %is_some1 = alloca i1, align 1
+  store i1 %is_some, ptr %is_some1, align 1
+  %value2 = alloca ptr, align 8
+  store ptr %value, ptr %value2, align 8
+  %ret_val = alloca %Option, align 8
+  %ret = alloca %Option, align 8
+  store %Option zeroinitializer, ptr %ret, align 8
+  %is_some3 = load i1, ptr %is_some1, align 1
+  %ret4 = load %Option, ptr %ret, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %ret, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  store i1 %is_some3, ptr %access, align 1
+  %value5 = load ptr, ptr %value2, align 8
+  %ret6 = load %Option, ptr %ret, align 8
+  %access7 = getelementptr inbounds nuw %Option, ptr %ret, i32 0, i32 1
+  %getmembervalue8 = load ptr, ptr %access7, align 8
+  store ptr %value5, ptr %access7, align 8
+  %ret9 = load %Option, ptr %ret, align 8
+  ret %Option %ret9
+}
+
+define %Option @Some(ptr %value) {
+entry:
+  %value1 = alloca ptr, align 8
+  store ptr %value, ptr %value1, align 8
+  %ret_val = alloca %Option, align 8
+  %value2 = load ptr, ptr %value1, align 8
+  %calltmp = call %Option @Option_new(i1 true, ptr %value2)
+  ret %Option %calltmp
+}
+
+define %Option @None() {
+entry:
+  %ret_val = alloca %Option, align 8
+  %calltmp = call ptr @null()
+  %calltmp1 = call %Option @Option_new(i1 false, ptr %calltmp)
+  ret %Option %calltmp1
+}
+
+define i1 @is_some(%Option %self) {
+entry:
+  %self1 = alloca %Option, align 8
+  store %Option %self, ptr %self1, align 8
+  %ret_val = alloca i1, align 1
+  %self2 = load %Option, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  ret i1 %getmembervalue
+}
+
+define ptr @unwrap(%Option %self) {
+entry:
+  %self1 = alloca %Option, align 8
+  store %Option %self, ptr %self1, align 8
+  %ret_val = alloca ptr, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self2 = load %Option, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  br i1 %getmembervalue, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %self3 = load %Option, ptr %self1, align 8
+  %access4 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
+  %getmembervalue5 = load ptr, ptr %access4, align 8
+  ret ptr %getmembervalue5
+
+if.else:                                          ; preds = %if.cond.0
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_24, ptr @str_23)
+  call void @exit(i32 1)
+  %calltmp = call ptr @null()
+  ret ptr %calltmp
+}
+
+define ptr @expect(%Option %self, ptr %error_message) {
+entry:
+  %self1 = alloca %Option, align 8
+  store %Option %self, ptr %self1, align 8
+  %error_message2 = alloca ptr, align 8
+  store ptr %error_message, ptr %error_message2, align 8
+  %ret_val = alloca ptr, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self3 = load %Option, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  br i1 %getmembervalue, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %self4 = load %Option, ptr %self1, align 8
+  %access5 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
+  %getmembervalue6 = load ptr, ptr %access5, align 8
+  ret ptr %getmembervalue6
+
+if.else:                                          ; preds = %if.cond.0
+  %error_message7 = load ptr, ptr %error_message2, align 8
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_25, ptr %error_message7)
+  call void @exit(i32 1)
+  %calltmp = call ptr @null()
+  ret ptr %calltmp
+}
+
+define %Iterator @iter_new(ptr %pointer, ptr %start, ptr %end, i64 %elem_size) {
+entry:
+  %pointer1 = alloca ptr, align 8
+  store ptr %pointer, ptr %pointer1, align 8
+  %start2 = alloca ptr, align 8
+  store ptr %start, ptr %start2, align 8
+  %end3 = alloca ptr, align 8
+  store ptr %end, ptr %end3, align 8
+  %elem_size4 = alloca i64, align 8
+  store i64 %elem_size, ptr %elem_size4, align 4
+  %ret_val = alloca %Iterator, align 8
+  %iter = alloca %Iterator, align 8
+  store %Iterator zeroinitializer, ptr %iter, align 8
+  %pointer5 = load ptr, ptr %pointer1, align 8
+  %iter6 = load %Iterator, ptr %iter, align 8
+  %access = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  store ptr %pointer5, ptr %access, align 8
+  %start7 = load ptr, ptr %start2, align 8
+  %iter8 = load %Iterator, ptr %iter, align 8
+  %access9 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 1
+  %getmembervalue10 = load ptr, ptr %access9, align 8
+  store ptr %start7, ptr %access9, align 8
+  %end11 = load ptr, ptr %end3, align 8
+  %iter12 = load %Iterator, ptr %iter, align 8
+  %access13 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 2
+  %getmembervalue14 = load ptr, ptr %access13, align 8
+  store ptr %end11, ptr %access13, align 8
+  %elem_size15 = load i64, ptr %elem_size4, align 4
+  %iter16 = load %Iterator, ptr %iter, align 8
+  %access17 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 3
+  %getmembervalue18 = load i64, ptr %access17, align 4
+  store i64 %elem_size15, ptr %access17, align 4
+  %iter19 = load %Iterator, ptr %iter, align 8
+  ret %Iterator %iter19
+}
+
+define %Iterator @iter(ptr %contents, ptr %end, i64 %elem_size) {
+entry:
+  %contents1 = alloca ptr, align 8
+  store ptr %contents, ptr %contents1, align 8
+  %end2 = alloca ptr, align 8
+  store ptr %end, ptr %end2, align 8
+  %elem_size3 = alloca i64, align 8
+  store i64 %elem_size, ptr %elem_size3, align 4
+  %ret_val = alloca %Iterator, align 8
+  %contents4 = load ptr, ptr %contents1, align 8
+  %contents5 = load ptr, ptr %contents1, align 8
+  %end6 = load ptr, ptr %end2, align 8
+  %elem_size7 = load i64, ptr %elem_size3, align 4
+  %calltmp = call %Iterator @iter_new(ptr %contents4, ptr %contents5, ptr %end6, i64 %elem_size7)
+  ret %Iterator %calltmp
+}
+
+define %Option @iter_next(ptr %self) {
+entry:
+  %self1 = alloca ptr, align 8
+  store ptr %self, ptr %self1, align 8
+  %ret_val = alloca %Option, align 8
+  %self2 = load ptr, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Iterator, ptr %self2, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  %ret = alloca ptr, align 8
+  store ptr %getmembervalue, ptr %ret, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self3 = load ptr, ptr %self1, align 8
+  %access4 = getelementptr inbounds nuw %Iterator, ptr %self3, i32 0, i32 0
+  %getmembervalue5 = load ptr, ptr %access4, align 8
+  %self6 = load ptr, ptr %self1, align 8
+  %access7 = getelementptr inbounds nuw %Iterator, ptr %self6, i32 0, i32 2
+  %getmembervalue8 = load ptr, ptr %access7, align 8
+  %ptr_a_i = ptrtoint ptr %getmembervalue5 to i64
+  %ptr_b_i = ptrtoint ptr %getmembervalue8 to i64
+  %slt = icmp slt i64 %ptr_a_i, %ptr_b_i
+  br i1 %slt, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %ret9 = load ptr, ptr %ret, align 8
+  %self10 = load ptr, ptr %self1, align 8
+  %access11 = getelementptr inbounds nuw %Iterator, ptr %self10, i32 0, i32 3
+  %getmembervalue12 = load i64, ptr %access11, align 4
+  %ptr_add = getelementptr i8, ptr %ret9, i64 %getmembervalue12
+  %self13 = load ptr, ptr %self1, align 8
+  %access14 = getelementptr inbounds nuw %Iterator, ptr %self13, i32 0, i32 0
+  %getmembervalue15 = load ptr, ptr %access14, align 8
+  store ptr %ptr_add, ptr %access14, align 8
+  %ret16 = load ptr, ptr %ret, align 8
+  %calltmp = call %Option @Some(ptr %ret16)
+  ret %Option %calltmp
+
+if.else:                                          ; preds = %if.cond.0
+  %calltmp17 = call %Option @None()
+  ret %Option %calltmp17
+}
+
+define %Option @iter_peek(ptr %self) {
+entry:
+  %self1 = alloca ptr, align 8
+  store ptr %self, ptr %self1, align 8
+  %ret_val = alloca %Option, align 8
+  %self2 = load ptr, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Iterator, ptr %self2, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  %ret = alloca ptr, align 8
+  store ptr %getmembervalue, ptr %ret, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self3 = load ptr, ptr %self1, align 8
+  %access4 = getelementptr inbounds nuw %Iterator, ptr %self3, i32 0, i32 0
+  %getmembervalue5 = load ptr, ptr %access4, align 8
+  %self6 = load ptr, ptr %self1, align 8
+  %access7 = getelementptr inbounds nuw %Iterator, ptr %self6, i32 0, i32 2
+  %getmembervalue8 = load ptr, ptr %access7, align 8
+  %ptr_a_i = ptrtoint ptr %getmembervalue5 to i64
+  %ptr_b_i = ptrtoint ptr %getmembervalue8 to i64
+  %slt = icmp slt i64 %ptr_a_i, %ptr_b_i
+  br i1 %slt, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %ret9 = load ptr, ptr %ret, align 8
+  %calltmp = call %Option @Some(ptr %ret9)
+  ret %Option %calltmp
+
+if.else:                                          ; preds = %if.cond.0
+  %calltmp10 = call %Option @None()
+  ret %Option %calltmp10
+}
+
 define i32 @main() {
 entry:
   %ret_val = alloca i32, align 4
@@ -2667,11 +2910,11 @@ entry:
   store i64 0, ptr %ans, align 4
   %n = alloca i64, align 8
   store i64 0, ptr %n, align 4
-  %scanf = call i32 (ptr, ...) @scanf(ptr @str_23, ptr %n)
+  %scanf = call i32 (ptr, ...) @scanf(ptr @str_26, ptr %n)
   %ans1 = load i64, ptr %ans, align 4
   %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_24, i64 %ans1)
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_25, ptr %fmt_buf)
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_27, i64 %ans1)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_28, ptr %fmt_buf)
   ret i32 0
 }
 
