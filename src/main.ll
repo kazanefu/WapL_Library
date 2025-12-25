@@ -1,16 +1,18 @@
 ; ModuleID = 'wapl_module'
 source_filename = "wapl_module"
 
+%Box = type { ptr, i64 }
+%Option = type { i1, ptr }
+%Iterator = type { ptr, ptr, ptr, i64 }
 %VecT = type { ptr, i64, i64, i64 }
+%Slice = type { ptr, i64 }
 %StrSlice = type { ptr, i64 }
 %String = type { ptr, i64, i64 }
 %timespec = type { i64, i64 }
 %KeyMap = type { ptr, i64, i64, i64 }
 %Entry = type { %String, ptr }
 %Complex = type { double, double }
-%Option = type { i1, ptr }
 %Result = type { i1, ptr, ptr }
-%Iterator = type { ptr, ptr, ptr, i64 }
 
 @str_0 = private unnamed_addr constant [5 x i8] c"true\00", align 1
 @str_1 = private unnamed_addr constant [6 x i8] c"false\00", align 1
@@ -19,31 +21,31 @@ source_filename = "wapl_module"
 @str_4 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
 @println_fmt_5 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @str_6 = private unnamed_addr constant [13 x i8] c"Hello World!\00", align 1
-@str_7 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@str_8 = private unnamed_addr constant [4 x i8] c"%lf\00", align 1
-@str_9 = private unnamed_addr constant [4 x i8] c" %c\00", align 1
-@str_10 = private unnamed_addr constant [10 x i8] c"%1000000s\00", align 1
-@str_11 = private unnamed_addr constant [25 x i8] c"The TextFile is Too Long\00", align 1
-@println_fmt_12 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_13 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
-@println_fmt_14 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_15 = private unnamed_addr constant [28 x i8] c"KeyMap_insert: miss realloc\00", align 1
-@println_fmt_16 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_17 = private unnamed_addr constant [28 x i8] c"KeyMap_insert: miss realloc\00", align 1
-@println_fmt_18 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_19 = private unnamed_addr constant [8 x i8] c"\1B[2J\1B[H\00", align 1
-@println_fmt_20 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_21 = private unnamed_addr constant [13 x i8] c"c = %g + %gi\00", align 1
-@println_fmt_22 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@str_23 = private unnamed_addr constant [24 x i8] c"Error:unexpected unwrap\00", align 1
-@println_fmt_24 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_7 = private unnamed_addr constant [24 x i8] c"Error:unexpected unwrap\00", align 1
+@println_fmt_8 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@println_fmt_9 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_10 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@str_11 = private unnamed_addr constant [4 x i8] c"%lf\00", align 1
+@str_12 = private unnamed_addr constant [4 x i8] c" %c\00", align 1
+@str_13 = private unnamed_addr constant [10 x i8] c"%1000000s\00", align 1
+@str_14 = private unnamed_addr constant [25 x i8] c"The TextFile is Too Long\00", align 1
+@println_fmt_15 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_16 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@println_fmt_17 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_18 = private unnamed_addr constant [28 x i8] c"KeyMap_insert: miss realloc\00", align 1
+@println_fmt_19 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_20 = private unnamed_addr constant [28 x i8] c"KeyMap_insert: miss realloc\00", align 1
+@println_fmt_21 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_22 = private unnamed_addr constant [8 x i8] c"\1B[2J\1B[H\00", align 1
+@println_fmt_23 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@str_24 = private unnamed_addr constant [13 x i8] c"c = %g + %gi\00", align 1
 @println_fmt_25 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @str_26 = private unnamed_addr constant [25 x i8] c"Error:unexpected unwrap?\00", align 1
 @println_fmt_27 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @println_fmt_28 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @stdin = external externally_initialized global ptr
 @str_29 = private unnamed_addr constant [8 x i8] c"IOError\00", align 1
-@str_30 = private unnamed_addr constant [3 x i8] c"%s\00", align 1
+@str_30 = private unnamed_addr constant [5 x i8] c"%s:\0A\00", align 1
 
 declare i64 @strtol(ptr, ptr, i32)
 
@@ -125,6 +127,51 @@ entry:
   ret void
 }
 
+define %Box @Box(ptr %src, i64 %elem_size) {
+entry:
+  %src1 = alloca ptr, align 8
+  store ptr %src, ptr %src1, align 8
+  %elem_size2 = alloca i64, align 8
+  store i64 %elem_size, ptr %elem_size2, align 4
+  %ret_val = alloca %Box, align 8
+  %elem_size3 = load i64, ptr %elem_size2, align 4
+  %malloc_call = call ptr @malloc(i64 %elem_size3)
+  %value = alloca ptr, align 8
+  store ptr %malloc_call, ptr %value, align 8
+  %box = alloca %Box, align 8
+  store %Box zeroinitializer, ptr %box, align 8
+  %value4 = load ptr, ptr %value, align 8
+  %src5 = load ptr, ptr %src1, align 8
+  %elem_size6 = load i64, ptr %elem_size2, align 4
+  call void @llvm.memcpy.p0.p0.i64(ptr align 1 %value4, ptr align 1 %src5, i64 %elem_size6, i1 false)
+  %value7 = load ptr, ptr %value, align 8
+  %box8 = load %Box, ptr %box, align 8
+  %access = getelementptr inbounds nuw %Box, ptr %box, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  store ptr %value7, ptr %access, align 8
+  %elem_size9 = load i64, ptr %elem_size2, align 4
+  %box10 = load %Box, ptr %box, align 8
+  %access11 = getelementptr inbounds nuw %Box, ptr %box, i32 0, i32 1
+  %getmembervalue12 = load i64, ptr %access11, align 4
+  store i64 %elem_size9, ptr %access11, align 4
+  %box13 = load %Box, ptr %box, align 8
+  ret %Box %box13
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.memcpy.p0.p0.i64(ptr noalias writeonly captures(none), ptr noalias readonly captures(none), i64, i1 immarg) #0
+
+define ptr @Box_open(%Box %box) {
+entry:
+  %box1 = alloca %Box, align 8
+  store %Box %box, ptr %box1, align 8
+  %ret_val = alloca ptr, align 8
+  %box2 = load %Box, ptr %box1, align 8
+  %access = getelementptr inbounds nuw %Box, ptr %box1, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  ret ptr %getmembervalue
+}
+
 define ptr @SayHello() {
 entry:
   %ret_val = alloca ptr, align 8
@@ -132,6 +179,270 @@ entry:
   %fmt_buf = alloca [128 x i8], align 1
   %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_6)
   ret ptr %fmt_buf
+}
+
+define %Option @Option_new(i1 %is_some, ptr %value) {
+entry:
+  %is_some1 = alloca i1, align 1
+  store i1 %is_some, ptr %is_some1, align 1
+  %value2 = alloca ptr, align 8
+  store ptr %value, ptr %value2, align 8
+  %ret_val = alloca %Option, align 8
+  %ret = alloca %Option, align 8
+  store %Option zeroinitializer, ptr %ret, align 8
+  %is_some3 = load i1, ptr %is_some1, align 1
+  %ret4 = load %Option, ptr %ret, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %ret, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  store i1 %is_some3, ptr %access, align 1
+  %value5 = load ptr, ptr %value2, align 8
+  %ret6 = load %Option, ptr %ret, align 8
+  %access7 = getelementptr inbounds nuw %Option, ptr %ret, i32 0, i32 1
+  %getmembervalue8 = load ptr, ptr %access7, align 8
+  store ptr %value5, ptr %access7, align 8
+  %ret9 = load %Option, ptr %ret, align 8
+  ret %Option %ret9
+}
+
+define %Option @Some(ptr %value) {
+entry:
+  %value1 = alloca ptr, align 8
+  store ptr %value, ptr %value1, align 8
+  %ret_val = alloca %Option, align 8
+  %value2 = load ptr, ptr %value1, align 8
+  %calltmp = call %Option @Option_new(i1 true, ptr %value2)
+  ret %Option %calltmp
+}
+
+define %Option @None() {
+entry:
+  %ret_val = alloca %Option, align 8
+  %calltmp = call ptr @null()
+  %calltmp1 = call %Option @Option_new(i1 false, ptr %calltmp)
+  ret %Option %calltmp1
+}
+
+define i1 @is_some(%Option %self) {
+entry:
+  %self1 = alloca %Option, align 8
+  store %Option %self, ptr %self1, align 8
+  %ret_val = alloca i1, align 1
+  %self2 = load %Option, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  ret i1 %getmembervalue
+}
+
+define ptr @unwrap(%Option %self) {
+entry:
+  %self1 = alloca %Option, align 8
+  store %Option %self, ptr %self1, align 8
+  %ret_val = alloca ptr, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self2 = load %Option, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  br i1 %getmembervalue, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %self3 = load %Option, ptr %self1, align 8
+  %access4 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
+  %getmembervalue5 = load ptr, ptr %access4, align 8
+  ret ptr %getmembervalue5
+
+if.else:                                          ; preds = %if.cond.0
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_8, ptr @str_7)
+  call void @exit(i32 1)
+  %calltmp = call ptr @null()
+  ret ptr %calltmp
+}
+
+define ptr @expect(%Option %self, ptr %error_message) {
+entry:
+  %self1 = alloca %Option, align 8
+  store %Option %self, ptr %self1, align 8
+  %error_message2 = alloca ptr, align 8
+  store ptr %error_message, ptr %error_message2, align 8
+  %ret_val = alloca ptr, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self3 = load %Option, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  br i1 %getmembervalue, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %self4 = load %Option, ptr %self1, align 8
+  %access5 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
+  %getmembervalue6 = load ptr, ptr %access5, align 8
+  ret ptr %getmembervalue6
+
+if.else:                                          ; preds = %if.cond.0
+  %error_message7 = load ptr, ptr %error_message2, align 8
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_9, ptr %error_message7)
+  call void @exit(i32 1)
+  %calltmp = call ptr @null()
+  ret ptr %calltmp
+}
+
+define ptr @unwrap_or(%Option %self, ptr %or_value) {
+entry:
+  %self1 = alloca %Option, align 8
+  store %Option %self, ptr %self1, align 8
+  %or_value2 = alloca ptr, align 8
+  store ptr %or_value, ptr %or_value2, align 8
+  %ret_val = alloca ptr, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self3 = load %Option, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
+  %getmembervalue = load i1, ptr %access, align 1
+  br i1 %getmembervalue, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %self4 = load %Option, ptr %self1, align 8
+  %access5 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
+  %getmembervalue6 = load ptr, ptr %access5, align 8
+  ret ptr %getmembervalue6
+
+if.else:                                          ; preds = %if.cond.0
+  %or_value7 = load ptr, ptr %or_value2, align 8
+  ret ptr %or_value7
+}
+
+define %Iterator @iter_new(ptr %pointer, ptr %start, ptr %end, i64 %elem_size) {
+entry:
+  %pointer1 = alloca ptr, align 8
+  store ptr %pointer, ptr %pointer1, align 8
+  %start2 = alloca ptr, align 8
+  store ptr %start, ptr %start2, align 8
+  %end3 = alloca ptr, align 8
+  store ptr %end, ptr %end3, align 8
+  %elem_size4 = alloca i64, align 8
+  store i64 %elem_size, ptr %elem_size4, align 4
+  %ret_val = alloca %Iterator, align 8
+  %iter = alloca %Iterator, align 8
+  store %Iterator zeroinitializer, ptr %iter, align 8
+  %pointer5 = load ptr, ptr %pointer1, align 8
+  %iter6 = load %Iterator, ptr %iter, align 8
+  %access = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  store ptr %pointer5, ptr %access, align 8
+  %start7 = load ptr, ptr %start2, align 8
+  %iter8 = load %Iterator, ptr %iter, align 8
+  %access9 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 1
+  %getmembervalue10 = load ptr, ptr %access9, align 8
+  store ptr %start7, ptr %access9, align 8
+  %end11 = load ptr, ptr %end3, align 8
+  %iter12 = load %Iterator, ptr %iter, align 8
+  %access13 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 2
+  %getmembervalue14 = load ptr, ptr %access13, align 8
+  store ptr %end11, ptr %access13, align 8
+  %elem_size15 = load i64, ptr %elem_size4, align 4
+  %iter16 = load %Iterator, ptr %iter, align 8
+  %access17 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 3
+  %getmembervalue18 = load i64, ptr %access17, align 4
+  store i64 %elem_size15, ptr %access17, align 4
+  %iter19 = load %Iterator, ptr %iter, align 8
+  ret %Iterator %iter19
+}
+
+define %Iterator @iter(ptr %contents, ptr %end, i64 %elem_size) {
+entry:
+  %contents1 = alloca ptr, align 8
+  store ptr %contents, ptr %contents1, align 8
+  %end2 = alloca ptr, align 8
+  store ptr %end, ptr %end2, align 8
+  %elem_size3 = alloca i64, align 8
+  store i64 %elem_size, ptr %elem_size3, align 4
+  %ret_val = alloca %Iterator, align 8
+  %contents4 = load ptr, ptr %contents1, align 8
+  %contents5 = load ptr, ptr %contents1, align 8
+  %end6 = load ptr, ptr %end2, align 8
+  %elem_size7 = load i64, ptr %elem_size3, align 4
+  %calltmp = call %Iterator @iter_new(ptr %contents4, ptr %contents5, ptr %end6, i64 %elem_size7)
+  ret %Iterator %calltmp
+}
+
+define %Option @iter_next(ptr %self) {
+entry:
+  %self1 = alloca ptr, align 8
+  store ptr %self, ptr %self1, align 8
+  %ret_val = alloca %Option, align 8
+  %self2 = load ptr, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Iterator, ptr %self2, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  %ret = alloca ptr, align 8
+  store ptr %getmembervalue, ptr %ret, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self3 = load ptr, ptr %self1, align 8
+  %access4 = getelementptr inbounds nuw %Iterator, ptr %self3, i32 0, i32 0
+  %getmembervalue5 = load ptr, ptr %access4, align 8
+  %self6 = load ptr, ptr %self1, align 8
+  %access7 = getelementptr inbounds nuw %Iterator, ptr %self6, i32 0, i32 2
+  %getmembervalue8 = load ptr, ptr %access7, align 8
+  %ptr_a_i = ptrtoint ptr %getmembervalue5 to i64
+  %ptr_b_i = ptrtoint ptr %getmembervalue8 to i64
+  %slt = icmp slt i64 %ptr_a_i, %ptr_b_i
+  br i1 %slt, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %ret9 = load ptr, ptr %ret, align 8
+  %self10 = load ptr, ptr %self1, align 8
+  %access11 = getelementptr inbounds nuw %Iterator, ptr %self10, i32 0, i32 3
+  %getmembervalue12 = load i64, ptr %access11, align 4
+  %ptr_add = getelementptr i8, ptr %ret9, i64 %getmembervalue12
+  %self13 = load ptr, ptr %self1, align 8
+  %access14 = getelementptr inbounds nuw %Iterator, ptr %self13, i32 0, i32 0
+  %getmembervalue15 = load ptr, ptr %access14, align 8
+  store ptr %ptr_add, ptr %access14, align 8
+  %ret16 = load ptr, ptr %ret, align 8
+  %calltmp = call %Option @Some(ptr %ret16)
+  ret %Option %calltmp
+
+if.else:                                          ; preds = %if.cond.0
+  %calltmp17 = call %Option @None()
+  ret %Option %calltmp17
+}
+
+define %Option @iter_peek(ptr %self) {
+entry:
+  %self1 = alloca ptr, align 8
+  store ptr %self, ptr %self1, align 8
+  %ret_val = alloca %Option, align 8
+  %self2 = load ptr, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %Iterator, ptr %self2, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  %ret = alloca ptr, align 8
+  store ptr %getmembervalue, ptr %ret, align 8
+  br label %if.cond.0
+
+if.cond.0:                                        ; preds = %entry
+  %self3 = load ptr, ptr %self1, align 8
+  %access4 = getelementptr inbounds nuw %Iterator, ptr %self3, i32 0, i32 0
+  %getmembervalue5 = load ptr, ptr %access4, align 8
+  %self6 = load ptr, ptr %self1, align 8
+  %access7 = getelementptr inbounds nuw %Iterator, ptr %self6, i32 0, i32 2
+  %getmembervalue8 = load ptr, ptr %access7, align 8
+  %ptr_a_i = ptrtoint ptr %getmembervalue5 to i64
+  %ptr_b_i = ptrtoint ptr %getmembervalue8 to i64
+  %slt = icmp slt i64 %ptr_a_i, %ptr_b_i
+  br i1 %slt, label %if.then.0, label %if.else
+
+if.then.0:                                        ; preds = %if.cond.0
+  %ret9 = load ptr, ptr %ret, align 8
+  %calltmp = call %Option @Some(ptr %ret9)
+  ret %Option %calltmp
+
+if.else:                                          ; preds = %if.cond.0
+  %calltmp10 = call %Option @None()
+  ret %Option %calltmp10
 }
 
 define %VecT @VecT_new(i64 %e_size, i64 %capa) {
@@ -247,22 +558,19 @@ push:                                             ; preds = %capaover, %pending_
   ret ptr %value46
 }
 
-; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: readwrite)
-declare void @llvm.memcpy.p0.p0.i64(ptr noalias writeonly captures(none), ptr noalias readonly captures(none), i64, i1 immarg) #0
-
-define ptr @VecT_get(ptr %"&self", i64 %indx) {
+define ptr @VecT_get(%VecT %self, i64 %indx) {
 entry:
-  %"&self1" = alloca ptr, align 8
-  store ptr %"&self", ptr %"&self1", align 8
+  %self1 = alloca %VecT, align 8
+  store %VecT %self, ptr %self1, align 8
   %indx2 = alloca i64, align 8
   store i64 %indx, ptr %indx2, align 4
   %ret_val = alloca ptr, align 8
-  %"&self3" = load ptr, ptr %"&self1", align 8
-  %access = getelementptr inbounds nuw %VecT, ptr %"&self3", i32 0, i32 0
+  %self3 = load %VecT, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %VecT, ptr %self1, i32 0, i32 0
   %getmembervalue = load ptr, ptr %access, align 8
   %indx4 = load i64, ptr %indx2, align 4
-  %"&self5" = load ptr, ptr %"&self1", align 8
-  %access6 = getelementptr inbounds nuw %VecT, ptr %"&self5", i32 0, i32 1
+  %self5 = load %VecT, ptr %self1, align 8
+  %access6 = getelementptr inbounds nuw %VecT, ptr %self1, i32 0, i32 1
   %getmembervalue7 = load i64, ptr %access6, align 4
   %mul = mul i64 %indx4, %getmembervalue7
   %ptr_add = getelementptr i8, ptr %getmembervalue, i64 %mul
@@ -467,6 +775,49 @@ no_judge_continue-loop:                           ; preds = %continue-loop
 break-loop:                                       ; preds = %continue-loop
   %v13 = load %VecT, ptr %v, align 8
   ret %VecT %v13
+}
+
+define %Iterator @VecT_iter(%VecT %vec) {
+entry:
+  %vec1 = alloca %VecT, align 8
+  store %VecT %vec, ptr %vec1, align 8
+  %ret_val = alloca %Iterator, align 8
+  %vec2 = load %VecT, ptr %vec1, align 8
+  %access = getelementptr inbounds nuw %VecT, ptr %vec1, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  %vec3 = load %VecT, ptr %vec1, align 8
+  %vec4 = load %VecT, ptr %vec1, align 8
+  %access5 = getelementptr inbounds nuw %VecT, ptr %vec1, i32 0, i32 2
+  %getmembervalue6 = load i64, ptr %access5, align 4
+  %calltmp = call ptr @VecT_get(%VecT %vec3, i64 %getmembervalue6)
+  %vec7 = load %VecT, ptr %vec1, align 8
+  %access8 = getelementptr inbounds nuw %VecT, ptr %vec1, i32 0, i32 1
+  %getmembervalue9 = load i64, ptr %access8, align 4
+  %calltmp10 = call %Iterator @iter(ptr %getmembervalue, ptr %calltmp, i64 %getmembervalue9)
+  ret %Iterator %calltmp10
+}
+
+define %Slice @Slice_new(ptr %value, i64 %len) {
+entry:
+  %value1 = alloca ptr, align 8
+  store ptr %value, ptr %value1, align 8
+  %len2 = alloca i64, align 8
+  store i64 %len, ptr %len2, align 4
+  %ret_val = alloca %Slice, align 8
+  %slice = alloca %Slice, align 8
+  store %Slice zeroinitializer, ptr %slice, align 8
+  %value3 = load ptr, ptr %value1, align 8
+  %slice4 = load %Slice, ptr %slice, align 8
+  %access = getelementptr inbounds nuw %Slice, ptr %slice, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
+  store ptr %value3, ptr %access, align 8
+  %len5 = load i64, ptr %len2, align 4
+  %slice6 = load %Slice, ptr %slice, align 8
+  %access7 = getelementptr inbounds nuw %Slice, ptr %slice, i32 0, i32 1
+  %getmembervalue8 = load i64, ptr %access7, align 4
+  store i64 %len5, ptr %access7, align 4
+  %slice9 = load %Slice, ptr %slice, align 8
+  ret %Slice %slice9
 }
 
 declare i32 @strcmp(ptr, ptr)
@@ -757,18 +1108,18 @@ break-capaover:                                   ; preds = %no_judge_continue-c
   ret ptr %"&self46"
 }
 
-define i8 @String_get(ptr %"&self", i64 %indx) {
+define i8 @String_get(%String %self, i64 %indx) {
 entry:
-  %"&self1" = alloca ptr, align 8
-  store ptr %"&self", ptr %"&self1", align 8
+  %self1 = alloca %String, align 8
+  store %String %self, ptr %self1, align 8
   %indx2 = alloca i64, align 8
   store i64 %indx, ptr %indx2, align 4
   %ret_val = alloca i8, align 1
-  %"&self3" = load ptr, ptr %"&self1", align 8
-  %access = getelementptr inbounds nuw %String, ptr %"&self3", i32 0, i32 0
-  %deref = load ptr, ptr %access, align 8
+  %self3 = load %String, ptr %self1, align 8
+  %access = getelementptr inbounds nuw %String, ptr %self1, i32 0, i32 0
+  %getmembervalue = load ptr, ptr %access, align 8
   %indx4 = load i64, ptr %indx2, align 4
-  %idx_ptr = getelementptr i8, ptr %deref, i64 %indx4
+  %idx_ptr = getelementptr i8, ptr %getmembervalue, i64 %indx4
   %"idx[]_load" = load i8, ptr %idx_ptr, align 1
   ret i8 %"idx[]_load"
 }
@@ -933,6 +1284,20 @@ entry:
   ret %StrSlice %calltmp4
 }
 
+define %String @StrSlice_to_String(%StrSlice %str) {
+entry:
+  %str1 = alloca %StrSlice, align 8
+  store %StrSlice %str, ptr %str1, align 8
+  %ret_val = alloca %String, align 8
+  %str2 = load %StrSlice, ptr %str1, align 8
+  %calltmp = call ptr @StrSlice_as_str(%StrSlice %str2)
+  %str3 = load %StrSlice, ptr %str1, align 8
+  %access = getelementptr inbounds nuw %StrSlice, ptr %str1, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %calltmp4 = call %String @String_from_with_len(ptr %calltmp, i64 %getmembervalue)
+  ret %String %calltmp4
+}
+
 define i1 @is_space(i8 %c) {
 entry:
   %c1 = alloca i8, align 1
@@ -1085,6 +1450,246 @@ entry:
   ret %String %calltmp8
 }
 
+define %Iterator @StrSlice_iter(%StrSlice %str) {
+entry:
+  %str1 = alloca %StrSlice, align 8
+  store %StrSlice %str, ptr %str1, align 8
+  %ret_val = alloca %Iterator, align 8
+  %str2 = load %StrSlice, ptr %str1, align 8
+  %calltmp = call ptr @StrSlice_as_str(%StrSlice %str2)
+  %str3 = load %StrSlice, ptr %str1, align 8
+  %calltmp4 = call ptr @StrSlice_as_str(%StrSlice %str3)
+  %str5 = load %StrSlice, ptr %str1, align 8
+  %access = getelementptr inbounds nuw %StrSlice, ptr %str1, i32 0, i32 1
+  %getmembervalue = load i64, ptr %access, align 4
+  %ptr_add = getelementptr i8, ptr %calltmp4, i64 %getmembervalue
+  %calltmp6 = call %Iterator @iter(ptr %calltmp, ptr %ptr_add, i64 ptrtoint (ptr getelementptr (i8, ptr null, i32 1) to i64))
+  ret %Iterator %calltmp6
+}
+
+define %Iterator @String_iter(%String %string) {
+entry:
+  %string1 = alloca %String, align 8
+  store %String %string, ptr %string1, align 8
+  %ret_val = alloca %Iterator, align 8
+  %string2 = load %String, ptr %string1, align 8
+  %calltmp = call %StrSlice @String_as_StrSlice(%String %string2)
+  %str = alloca %StrSlice, align 8
+  store %StrSlice %calltmp, ptr %str, align 8
+  %str3 = load %StrSlice, ptr %str, align 8
+  %calltmp4 = call %Iterator @StrSlice_iter(%StrSlice %str3)
+  ret %Iterator %calltmp4
+}
+
+define %VecT @String_split_whitespace(%String %src) {
+entry:
+  %src1 = alloca %String, align 8
+  store %String %src, ptr %src1, align 8
+  %ret_val = alloca %VecT, align 8
+  %calltmp = call %VecT @VecT_new(i64 ptrtoint (ptr getelementptr (%StrSlice, ptr null, i32 1) to i64), i64 1)
+  %vec_strslice = alloca %VecT, align 8
+  store %VecT %calltmp, ptr %vec_strslice, align 8
+  %index = alloca i64, align 8
+  store i64 0, ptr %index, align 4
+  %part_len = alloca i64, align 8
+  store i64 0, ptr %part_len, align 4
+  %src2 = load %String, ptr %src1, align 8
+  %calltmp3 = call ptr @String_as_str(%String %src2)
+  %src_str = alloca ptr, align 8
+  store ptr %calltmp3, ptr %src_str, align 8
+  %src_str4 = load ptr, ptr %src_str, align 8
+  %start = alloca ptr, align 8
+  store ptr %src_str4, ptr %start, align 8
+  %src5 = load %String, ptr %src1, align 8
+  %calltmp6 = call %Iterator @String_iter(%String %src5)
+  %it = alloca %Iterator, align 8
+  store %Iterator %calltmp6, ptr %it, align 8
+  br label %loop_start-add_unsafe
+
+loop_start-add_unsafe:                            ; preds = %entry
+  br label %continue-add_unsafe
+
+continue-add_unsafe:                              ; preds = %if.end, %if.end17, %loop_start-add_unsafe
+  %calltmp7 = call %Option @iter_peek(ptr %it)
+  %calltmp8 = call i1 @is_some(%Option %calltmp7)
+  br i1 %calltmp8, label %no_judge_continue-add_unsafe, label %break-add_unsafe
+
+no_judge_continue-add_unsafe:                     ; preds = %continue-add_unsafe
+  %calltmp9 = call %Option @iter_next(ptr %it)
+  %calltmp10 = call ptr @unwrap(%Option %calltmp9)
+  %deref = load i8, ptr %calltmp10, align 1
+  %c = alloca i8, align 1
+  store i8 %deref, ptr %c, align 1
+  %index11 = load i64, ptr %index, align 4
+  %add = add i64 %index11, 1
+  store i64 %add, ptr %index, align 4
+  br label %if.cond.0
+
+break-add_unsafe:                                 ; preds = %continue-add_unsafe
+  br label %if.cond.026
+
+if.cond.0:                                        ; preds = %no_judge_continue-add_unsafe
+  %c12 = load i8, ptr %c, align 1
+  %calltmp13 = call i1 @is_space(i8 %c12)
+  br i1 %calltmp13, label %if.then.0, label %if.end
+
+if.then.0:                                        ; preds = %if.cond.0
+  br label %if.cond.014
+
+if.end:                                           ; preds = %if.end17, %if.cond.0
+  %part_len24 = load i64, ptr %part_len, align 4
+  %add25 = add i64 %part_len24, 1
+  store i64 %add25, ptr %part_len, align 4
+  br label %continue-add_unsafe
+
+if.cond.014:                                      ; preds = %if.then.0
+  %part_len16 = load i64, ptr %part_len, align 4
+  %sgt = icmp sgt i64 %part_len16, 0
+  br i1 %sgt, label %if.then.015, label %if.end17
+
+if.then.015:                                      ; preds = %if.cond.014
+  %start18 = load ptr, ptr %start, align 8
+  %part_len19 = load i64, ptr %part_len, align 4
+  %calltmp20 = call %StrSlice @StrSlice_new(ptr %start18, i64 %part_len19)
+  %temp = alloca %StrSlice, align 8
+  store %StrSlice %calltmp20, ptr %temp, align 8
+  %calltmp21 = call ptr @VecT_push(ptr %vec_strslice, ptr %temp)
+  br label %if.end17
+
+if.end17:                                         ; preds = %if.then.015, %if.cond.014
+  store i64 0, ptr %part_len, align 4
+  %src_str22 = load ptr, ptr %src_str, align 8
+  %index23 = load i64, ptr %index, align 4
+  %ptr_add = getelementptr i8, ptr %src_str22, i64 %index23
+  store ptr %ptr_add, ptr %start, align 8
+  br label %continue-add_unsafe
+  br label %if.end
+
+if.cond.026:                                      ; preds = %break-add_unsafe
+  %part_len28 = load i64, ptr %part_len, align 4
+  %sgt29 = icmp sgt i64 %part_len28, 0
+  br i1 %sgt29, label %if.then.027, label %if.end30
+
+if.then.027:                                      ; preds = %if.cond.026
+  %start31 = load ptr, ptr %start, align 8
+  %part_len32 = load i64, ptr %part_len, align 4
+  %calltmp33 = call %StrSlice @StrSlice_new(ptr %start31, i64 %part_len32)
+  %temp34 = alloca %StrSlice, align 8
+  store %StrSlice %calltmp33, ptr %temp34, align 8
+  %calltmp35 = call ptr @VecT_push(ptr %vec_strslice, ptr %temp34)
+  br label %if.end30
+
+if.end30:                                         ; preds = %if.then.027, %if.cond.026
+  %vec_strslice36 = load %VecT, ptr %vec_strslice, align 8
+  ret %VecT %vec_strslice36
+}
+
+define %VecT @String_split(%String %src, i8 %key) {
+entry:
+  %src1 = alloca %String, align 8
+  store %String %src, ptr %src1, align 8
+  %key2 = alloca i8, align 1
+  store i8 %key, ptr %key2, align 1
+  %ret_val = alloca %VecT, align 8
+  %calltmp = call %VecT @VecT_new(i64 ptrtoint (ptr getelementptr (%StrSlice, ptr null, i32 1) to i64), i64 1)
+  %vec_strslice = alloca %VecT, align 8
+  store %VecT %calltmp, ptr %vec_strslice, align 8
+  %index = alloca i64, align 8
+  store i64 0, ptr %index, align 4
+  %part_len = alloca i64, align 8
+  store i64 0, ptr %part_len, align 4
+  %src3 = load %String, ptr %src1, align 8
+  %calltmp4 = call ptr @String_as_str(%String %src3)
+  %src_str = alloca ptr, align 8
+  store ptr %calltmp4, ptr %src_str, align 8
+  %src_str5 = load ptr, ptr %src_str, align 8
+  %start = alloca ptr, align 8
+  store ptr %src_str5, ptr %start, align 8
+  %src6 = load %String, ptr %src1, align 8
+  %calltmp7 = call %Iterator @String_iter(%String %src6)
+  %it = alloca %Iterator, align 8
+  store %Iterator %calltmp7, ptr %it, align 8
+  br label %loop_start-add_unsafe
+
+loop_start-add_unsafe:                            ; preds = %entry
+  br label %continue-add_unsafe
+
+continue-add_unsafe:                              ; preds = %if.end, %if.end18, %loop_start-add_unsafe
+  %calltmp8 = call %Option @iter_peek(ptr %it)
+  %calltmp9 = call i1 @is_some(%Option %calltmp8)
+  br i1 %calltmp9, label %no_judge_continue-add_unsafe, label %break-add_unsafe
+
+no_judge_continue-add_unsafe:                     ; preds = %continue-add_unsafe
+  %calltmp10 = call %Option @iter_next(ptr %it)
+  %calltmp11 = call ptr @unwrap(%Option %calltmp10)
+  %deref = load i8, ptr %calltmp11, align 1
+  %c = alloca i8, align 1
+  store i8 %deref, ptr %c, align 1
+  %index12 = load i64, ptr %index, align 4
+  %add = add i64 %index12, 1
+  store i64 %add, ptr %index, align 4
+  br label %if.cond.0
+
+break-add_unsafe:                                 ; preds = %continue-add_unsafe
+  br label %if.cond.027
+
+if.cond.0:                                        ; preds = %no_judge_continue-add_unsafe
+  %c13 = load i8, ptr %c, align 1
+  %key14 = load i8, ptr %key2, align 1
+  %eq = icmp eq i8 %c13, %key14
+  br i1 %eq, label %if.then.0, label %if.end
+
+if.then.0:                                        ; preds = %if.cond.0
+  br label %if.cond.015
+
+if.end:                                           ; preds = %if.end18, %if.cond.0
+  %part_len25 = load i64, ptr %part_len, align 4
+  %add26 = add i64 %part_len25, 1
+  store i64 %add26, ptr %part_len, align 4
+  br label %continue-add_unsafe
+
+if.cond.015:                                      ; preds = %if.then.0
+  %part_len17 = load i64, ptr %part_len, align 4
+  %sgt = icmp sgt i64 %part_len17, 0
+  br i1 %sgt, label %if.then.016, label %if.end18
+
+if.then.016:                                      ; preds = %if.cond.015
+  %start19 = load ptr, ptr %start, align 8
+  %part_len20 = load i64, ptr %part_len, align 4
+  %calltmp21 = call %StrSlice @StrSlice_new(ptr %start19, i64 %part_len20)
+  %temp = alloca %StrSlice, align 8
+  store %StrSlice %calltmp21, ptr %temp, align 8
+  %calltmp22 = call ptr @VecT_push(ptr %vec_strslice, ptr %temp)
+  br label %if.end18
+
+if.end18:                                         ; preds = %if.then.016, %if.cond.015
+  store i64 0, ptr %part_len, align 4
+  %src_str23 = load ptr, ptr %src_str, align 8
+  %index24 = load i64, ptr %index, align 4
+  %ptr_add = getelementptr i8, ptr %src_str23, i64 %index24
+  store ptr %ptr_add, ptr %start, align 8
+  br label %continue-add_unsafe
+  br label %if.end
+
+if.cond.027:                                      ; preds = %break-add_unsafe
+  %part_len29 = load i64, ptr %part_len, align 4
+  %sgt30 = icmp sgt i64 %part_len29, 0
+  br i1 %sgt30, label %if.then.028, label %if.end31
+
+if.then.028:                                      ; preds = %if.cond.027
+  %start32 = load ptr, ptr %start, align 8
+  %part_len33 = load i64, ptr %part_len, align 4
+  %calltmp34 = call %StrSlice @StrSlice_new(ptr %start32, i64 %part_len33)
+  %temp35 = alloca %StrSlice, align 8
+  store %StrSlice %calltmp34, ptr %temp35, align 8
+  %calltmp36 = call ptr @VecT_push(ptr %vec_strslice, ptr %temp35)
+  br label %if.end31
+
+if.end31:                                         ; preds = %if.then.028, %if.cond.027
+  %vec_strslice37 = load %VecT, ptr %vec_strslice, align 8
+  ret %VecT %vec_strslice37
+}
+
 define ptr @input_i64(i64 %n) {
 entry:
   %n1 = alloca i64, align 8
@@ -1116,7 +1721,7 @@ InputLoop:                                        ; preds = %pending_true
   %a5 = load ptr, ptr %a, align 8
   %i6 = load i64, ptr %i, align 4
   %ptr_add = getelementptr i64, ptr %a5, i64 %i6
-  %scanf = call i32 (ptr, ...) @scanf(ptr @str_7, ptr %ptr_add)
+  %scanf = call i32 (ptr, ...) @scanf(ptr @str_10, ptr %ptr_add)
   %i7 = load i64, ptr %i, align 4
   %add = add i64 %i7, 1
   store i64 %add, ptr %i, align 4
@@ -1161,7 +1766,7 @@ InputLoop:                                        ; preds = %pending_true
   %a5 = load ptr, ptr %a, align 8
   %i6 = load i64, ptr %i, align 4
   %ptr_add = getelementptr double, ptr %a5, i64 %i6
-  %scanf = call i32 (ptr, ...) @scanf(ptr @str_8, ptr %ptr_add)
+  %scanf = call i32 (ptr, ...) @scanf(ptr @str_11, ptr %ptr_add)
   %i7 = load i64, ptr %i, align 4
   %add = add i64 %i7, 1
   store i64 %add, ptr %i, align 4
@@ -1207,7 +1812,7 @@ InputLoop:                                        ; preds = %pending_true
   %a6 = load ptr, ptr %a, align 8
   %i7 = load i64, ptr %i, align 4
   %ptr_add = getelementptr i8, ptr %a6, i64 %i7
-  %scanf = call i32 (ptr, ...) @scanf(ptr @str_9, ptr %ptr_add)
+  %scanf = call i32 (ptr, ...) @scanf(ptr @str_12, ptr %ptr_add)
   %i8 = load i64, ptr %i, align 4
   %add = add i64 %i8, 1
   store i64 %add, ptr %i, align 4
@@ -1228,7 +1833,7 @@ entry:
   %a = alloca ptr, align 8
   store ptr %malloc_call, ptr %a, align 8
   %a1 = load ptr, ptr %a, align 8
-  %scanf = call i32 (ptr, ...) @scanf(ptr @str_10, ptr %a1)
+  %scanf = call i32 (ptr, ...) @scanf(ptr @str_13, ptr %a1)
   %a2 = load ptr, ptr %a, align 8
   ret ptr %a2
 }
@@ -1912,11 +2517,11 @@ continue-size_error:                              ; preds = %no_judge_continue-s
   br i1 %sgt, label %no_judge_continue-size_error, label %break-size_error
 
 no_judge_continue-size_error:                     ; preds = %continue-size_error
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_12, ptr @str_11)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_15, ptr @str_14)
   %size8 = load i64, ptr %size, align 4
   %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_13, i64 %size8)
-  %printf9 = call i32 (ptr, ...) @printf(ptr @println_fmt_14, ptr %fmt_buf)
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_16, i64 %size8)
+  %printf9 = call i32 (ptr, ...) @printf(ptr @println_fmt_17, ptr %fmt_buf)
   br label %break-size_error
   br label %continue-size_error
 
@@ -2354,7 +2959,7 @@ continue-loop:                                    ; preds = %no_judge_continue-l
   br i1 %eq, label %no_judge_continue-loop, label %break-loop
 
 no_judge_continue-loop:                           ; preds = %continue-loop
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_16, ptr @str_15)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_19, ptr @str_18)
   call void @exit(i32 0)
   br label %continue-loop
 
@@ -2581,7 +3186,7 @@ continue-loop28:                                  ; preds = %no_judge_continue-l
   br i1 %eq, label %no_judge_continue-loop29, label %break-loop30
 
 no_judge_continue-loop29:                         ; preds = %continue-loop28
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_18, ptr @str_17)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_21, ptr @str_20)
   call void @exit(i32 0)
   br label %continue-loop28
 
@@ -2742,7 +3347,7 @@ break-loop:                                       ; preds = %continue-loop
 
 define void @clear_cli_screen() {
 entry:
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_20, ptr @str_19)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_23, ptr @str_22)
   ret void
 }
 
@@ -2780,8 +3385,8 @@ entry:
   %access4 = getelementptr inbounds nuw %Complex, ptr %c1, i32 0, i32 1
   %getmembervalue5 = load double, ptr %access4, align 8
   %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_21, double %getmembervalue, double %getmembervalue5)
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_22, ptr %fmt_buf)
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_24, double %getmembervalue, double %getmembervalue5)
+  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_25, ptr %fmt_buf)
   ret void
 }
 
@@ -2953,139 +3558,6 @@ entry:
   ret %Complex %calltmp
 }
 
-define %Option @Option_new(i1 %is_some, ptr %value) {
-entry:
-  %is_some1 = alloca i1, align 1
-  store i1 %is_some, ptr %is_some1, align 1
-  %value2 = alloca ptr, align 8
-  store ptr %value, ptr %value2, align 8
-  %ret_val = alloca %Option, align 8
-  %ret = alloca %Option, align 8
-  store %Option zeroinitializer, ptr %ret, align 8
-  %is_some3 = load i1, ptr %is_some1, align 1
-  %ret4 = load %Option, ptr %ret, align 8
-  %access = getelementptr inbounds nuw %Option, ptr %ret, i32 0, i32 0
-  %getmembervalue = load i1, ptr %access, align 1
-  store i1 %is_some3, ptr %access, align 1
-  %value5 = load ptr, ptr %value2, align 8
-  %ret6 = load %Option, ptr %ret, align 8
-  %access7 = getelementptr inbounds nuw %Option, ptr %ret, i32 0, i32 1
-  %getmembervalue8 = load ptr, ptr %access7, align 8
-  store ptr %value5, ptr %access7, align 8
-  %ret9 = load %Option, ptr %ret, align 8
-  ret %Option %ret9
-}
-
-define %Option @Some(ptr %value) {
-entry:
-  %value1 = alloca ptr, align 8
-  store ptr %value, ptr %value1, align 8
-  %ret_val = alloca %Option, align 8
-  %value2 = load ptr, ptr %value1, align 8
-  %calltmp = call %Option @Option_new(i1 true, ptr %value2)
-  ret %Option %calltmp
-}
-
-define %Option @None() {
-entry:
-  %ret_val = alloca %Option, align 8
-  %calltmp = call ptr @null()
-  %calltmp1 = call %Option @Option_new(i1 false, ptr %calltmp)
-  ret %Option %calltmp1
-}
-
-define i1 @is_some(%Option %self) {
-entry:
-  %self1 = alloca %Option, align 8
-  store %Option %self, ptr %self1, align 8
-  %ret_val = alloca i1, align 1
-  %self2 = load %Option, ptr %self1, align 8
-  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
-  %getmembervalue = load i1, ptr %access, align 1
-  ret i1 %getmembervalue
-}
-
-define ptr @unwrap(%Option %self) {
-entry:
-  %self1 = alloca %Option, align 8
-  store %Option %self, ptr %self1, align 8
-  %ret_val = alloca ptr, align 8
-  br label %if.cond.0
-
-if.cond.0:                                        ; preds = %entry
-  %self2 = load %Option, ptr %self1, align 8
-  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
-  %getmembervalue = load i1, ptr %access, align 1
-  br i1 %getmembervalue, label %if.then.0, label %if.else
-
-if.then.0:                                        ; preds = %if.cond.0
-  %self3 = load %Option, ptr %self1, align 8
-  %access4 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
-  %getmembervalue5 = load ptr, ptr %access4, align 8
-  ret ptr %getmembervalue5
-
-if.else:                                          ; preds = %if.cond.0
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_24, ptr @str_23)
-  call void @exit(i32 1)
-  %calltmp = call ptr @null()
-  ret ptr %calltmp
-}
-
-define ptr @expect(%Option %self, ptr %error_message) {
-entry:
-  %self1 = alloca %Option, align 8
-  store %Option %self, ptr %self1, align 8
-  %error_message2 = alloca ptr, align 8
-  store ptr %error_message, ptr %error_message2, align 8
-  %ret_val = alloca ptr, align 8
-  br label %if.cond.0
-
-if.cond.0:                                        ; preds = %entry
-  %self3 = load %Option, ptr %self1, align 8
-  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
-  %getmembervalue = load i1, ptr %access, align 1
-  br i1 %getmembervalue, label %if.then.0, label %if.else
-
-if.then.0:                                        ; preds = %if.cond.0
-  %self4 = load %Option, ptr %self1, align 8
-  %access5 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
-  %getmembervalue6 = load ptr, ptr %access5, align 8
-  ret ptr %getmembervalue6
-
-if.else:                                          ; preds = %if.cond.0
-  %error_message7 = load ptr, ptr %error_message2, align 8
-  %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_25, ptr %error_message7)
-  call void @exit(i32 1)
-  %calltmp = call ptr @null()
-  ret ptr %calltmp
-}
-
-define ptr @unwrap_or(%Option %self, ptr %or_value) {
-entry:
-  %self1 = alloca %Option, align 8
-  store %Option %self, ptr %self1, align 8
-  %or_value2 = alloca ptr, align 8
-  store ptr %or_value, ptr %or_value2, align 8
-  %ret_val = alloca ptr, align 8
-  br label %if.cond.0
-
-if.cond.0:                                        ; preds = %entry
-  %self3 = load %Option, ptr %self1, align 8
-  %access = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 0
-  %getmembervalue = load i1, ptr %access, align 1
-  br i1 %getmembervalue, label %if.then.0, label %if.else
-
-if.then.0:                                        ; preds = %if.cond.0
-  %self4 = load %Option, ptr %self1, align 8
-  %access5 = getelementptr inbounds nuw %Option, ptr %self1, i32 0, i32 1
-  %getmembervalue6 = load ptr, ptr %access5, align 8
-  ret ptr %getmembervalue6
-
-if.else:                                          ; preds = %if.cond.0
-  %or_value7 = load ptr, ptr %or_value2, align 8
-  ret ptr %or_value7
-}
-
 define %Result @Result_new(i1 %Ok, ptr %ok_value, ptr %err_value) {
 entry:
   %Ok1 = alloca i1, align 1
@@ -3230,137 +3702,6 @@ if.else:                                          ; preds = %if.cond.0
   ret ptr %calltmp
 }
 
-define %Iterator @iter_new(ptr %pointer, ptr %start, ptr %end, i64 %elem_size) {
-entry:
-  %pointer1 = alloca ptr, align 8
-  store ptr %pointer, ptr %pointer1, align 8
-  %start2 = alloca ptr, align 8
-  store ptr %start, ptr %start2, align 8
-  %end3 = alloca ptr, align 8
-  store ptr %end, ptr %end3, align 8
-  %elem_size4 = alloca i64, align 8
-  store i64 %elem_size, ptr %elem_size4, align 4
-  %ret_val = alloca %Iterator, align 8
-  %iter = alloca %Iterator, align 8
-  store %Iterator zeroinitializer, ptr %iter, align 8
-  %pointer5 = load ptr, ptr %pointer1, align 8
-  %iter6 = load %Iterator, ptr %iter, align 8
-  %access = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 0
-  %getmembervalue = load ptr, ptr %access, align 8
-  store ptr %pointer5, ptr %access, align 8
-  %start7 = load ptr, ptr %start2, align 8
-  %iter8 = load %Iterator, ptr %iter, align 8
-  %access9 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 1
-  %getmembervalue10 = load ptr, ptr %access9, align 8
-  store ptr %start7, ptr %access9, align 8
-  %end11 = load ptr, ptr %end3, align 8
-  %iter12 = load %Iterator, ptr %iter, align 8
-  %access13 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 2
-  %getmembervalue14 = load ptr, ptr %access13, align 8
-  store ptr %end11, ptr %access13, align 8
-  %elem_size15 = load i64, ptr %elem_size4, align 4
-  %iter16 = load %Iterator, ptr %iter, align 8
-  %access17 = getelementptr inbounds nuw %Iterator, ptr %iter, i32 0, i32 3
-  %getmembervalue18 = load i64, ptr %access17, align 4
-  store i64 %elem_size15, ptr %access17, align 4
-  %iter19 = load %Iterator, ptr %iter, align 8
-  ret %Iterator %iter19
-}
-
-define %Iterator @iter(ptr %contents, ptr %end, i64 %elem_size) {
-entry:
-  %contents1 = alloca ptr, align 8
-  store ptr %contents, ptr %contents1, align 8
-  %end2 = alloca ptr, align 8
-  store ptr %end, ptr %end2, align 8
-  %elem_size3 = alloca i64, align 8
-  store i64 %elem_size, ptr %elem_size3, align 4
-  %ret_val = alloca %Iterator, align 8
-  %contents4 = load ptr, ptr %contents1, align 8
-  %contents5 = load ptr, ptr %contents1, align 8
-  %end6 = load ptr, ptr %end2, align 8
-  %elem_size7 = load i64, ptr %elem_size3, align 4
-  %calltmp = call %Iterator @iter_new(ptr %contents4, ptr %contents5, ptr %end6, i64 %elem_size7)
-  ret %Iterator %calltmp
-}
-
-define %Option @iter_next(ptr %self) {
-entry:
-  %self1 = alloca ptr, align 8
-  store ptr %self, ptr %self1, align 8
-  %ret_val = alloca %Option, align 8
-  %self2 = load ptr, ptr %self1, align 8
-  %access = getelementptr inbounds nuw %Iterator, ptr %self2, i32 0, i32 0
-  %getmembervalue = load ptr, ptr %access, align 8
-  %ret = alloca ptr, align 8
-  store ptr %getmembervalue, ptr %ret, align 8
-  br label %if.cond.0
-
-if.cond.0:                                        ; preds = %entry
-  %self3 = load ptr, ptr %self1, align 8
-  %access4 = getelementptr inbounds nuw %Iterator, ptr %self3, i32 0, i32 0
-  %getmembervalue5 = load ptr, ptr %access4, align 8
-  %self6 = load ptr, ptr %self1, align 8
-  %access7 = getelementptr inbounds nuw %Iterator, ptr %self6, i32 0, i32 2
-  %getmembervalue8 = load ptr, ptr %access7, align 8
-  %ptr_a_i = ptrtoint ptr %getmembervalue5 to i64
-  %ptr_b_i = ptrtoint ptr %getmembervalue8 to i64
-  %slt = icmp slt i64 %ptr_a_i, %ptr_b_i
-  br i1 %slt, label %if.then.0, label %if.else
-
-if.then.0:                                        ; preds = %if.cond.0
-  %ret9 = load ptr, ptr %ret, align 8
-  %self10 = load ptr, ptr %self1, align 8
-  %access11 = getelementptr inbounds nuw %Iterator, ptr %self10, i32 0, i32 3
-  %getmembervalue12 = load i64, ptr %access11, align 4
-  %ptr_add = getelementptr i8, ptr %ret9, i64 %getmembervalue12
-  %self13 = load ptr, ptr %self1, align 8
-  %access14 = getelementptr inbounds nuw %Iterator, ptr %self13, i32 0, i32 0
-  %getmembervalue15 = load ptr, ptr %access14, align 8
-  store ptr %ptr_add, ptr %access14, align 8
-  %ret16 = load ptr, ptr %ret, align 8
-  %calltmp = call %Option @Some(ptr %ret16)
-  ret %Option %calltmp
-
-if.else:                                          ; preds = %if.cond.0
-  %calltmp17 = call %Option @None()
-  ret %Option %calltmp17
-}
-
-define %Option @iter_peek(ptr %self) {
-entry:
-  %self1 = alloca ptr, align 8
-  store ptr %self, ptr %self1, align 8
-  %ret_val = alloca %Option, align 8
-  %self2 = load ptr, ptr %self1, align 8
-  %access = getelementptr inbounds nuw %Iterator, ptr %self2, i32 0, i32 0
-  %getmembervalue = load ptr, ptr %access, align 8
-  %ret = alloca ptr, align 8
-  store ptr %getmembervalue, ptr %ret, align 8
-  br label %if.cond.0
-
-if.cond.0:                                        ; preds = %entry
-  %self3 = load ptr, ptr %self1, align 8
-  %access4 = getelementptr inbounds nuw %Iterator, ptr %self3, i32 0, i32 0
-  %getmembervalue5 = load ptr, ptr %access4, align 8
-  %self6 = load ptr, ptr %self1, align 8
-  %access7 = getelementptr inbounds nuw %Iterator, ptr %self6, i32 0, i32 2
-  %getmembervalue8 = load ptr, ptr %access7, align 8
-  %ptr_a_i = ptrtoint ptr %getmembervalue5 to i64
-  %ptr_b_i = ptrtoint ptr %getmembervalue8 to i64
-  %slt = icmp slt i64 %ptr_a_i, %ptr_b_i
-  br i1 %slt, label %if.then.0, label %if.else
-
-if.then.0:                                        ; preds = %if.cond.0
-  %ret9 = load ptr, ptr %ret, align 8
-  %calltmp = call %Option @Some(ptr %ret9)
-  ret %Option %calltmp
-
-if.else:                                          ; preds = %if.cond.0
-  %calltmp10 = call %Option @None()
-  ret %Option %calltmp10
-}
-
 define void @toplevel_child.0() {
 entry:
   ret void
@@ -3465,7 +3806,7 @@ entry:
 loop_start-read:                                  ; preds = %entry
   br label %continue-read
 
-continue-read:                                    ; preds = %if.end27, %loop_start-read
+continue-read:                                    ; preds = %if.end28, %loop_start-read
   br i1 true, label %no_judge_continue-read, label %break-read
 
 no_judge_continue-read:                           ; preds = %continue-read
@@ -3483,17 +3824,17 @@ no_judge_continue-read:                           ; preds = %continue-read
   br label %if.cond.0
 
 break-read:                                       ; preds = %if.then.019, %continue-read
-  %buf28 = load ptr, ptr %buf1, align 8
-  %deref29 = load %String, ptr %buf28, align 8
-  %access30 = getelementptr inbounds nuw %String, ptr %buf28, i32 0, i32 1
-  %getmembervalue31 = load i64, ptr %access30, align 4
-  %before32 = load i64, ptr %before, align 4
-  %sub33 = sub i64 %getmembervalue31, %before32
-  %add_len34 = load ptr, ptr %add_len2, align 8
-  store i64 %sub33, ptr %add_len34, align 4
+  %buf29 = load ptr, ptr %buf1, align 8
+  %deref30 = load %String, ptr %buf29, align 8
+  %access31 = getelementptr inbounds nuw %String, ptr %buf29, i32 0, i32 1
+  %getmembervalue32 = load i64, ptr %access31, align 4
+  %before33 = load i64, ptr %before, align 4
+  %sub34 = sub i64 %getmembervalue32, %before33
   %add_len35 = load ptr, ptr %add_len2, align 8
-  %calltmp36 = call %Result @Ok(ptr %add_len35)
-  ret %Result %calltmp36
+  store i64 %sub34, ptr %add_len35, align 4
+  %add_len36 = load ptr, ptr %add_len2, align 8
+  %calltmp37 = call %Result @Ok(ptr %add_len36)
+  ret %Result %calltmp37
 
 if.cond.0:                                        ; preds = %no_judge_continue-read
   %n7 = load i64, ptr %n, align 4
@@ -3530,20 +3871,21 @@ if.end:                                           ; preds = %if.cond.1
 
 if.cond.018:                                      ; preds = %if.end
   %buf20 = load ptr, ptr %buf1, align 8
-  %buf21 = load ptr, ptr %buf1, align 8
-  %deref22 = load %String, ptr %buf21, align 8
-  %access23 = getelementptr inbounds nuw %String, ptr %buf21, i32 0, i32 1
-  %getmembervalue24 = load i64, ptr %access23, align 4
-  %sub = sub i64 %getmembervalue24, 1
-  %calltmp25 = call i8 @String_get(ptr %buf20, i64 %sub)
-  %eq26 = icmp eq i8 %calltmp25, 10
-  br i1 %eq26, label %if.then.019, label %if.end27
+  %deref21 = load %String, ptr %buf20, align 8
+  %buf22 = load ptr, ptr %buf1, align 8
+  %deref23 = load %String, ptr %buf22, align 8
+  %access24 = getelementptr inbounds nuw %String, ptr %buf22, i32 0, i32 1
+  %getmembervalue25 = load i64, ptr %access24, align 4
+  %sub = sub i64 %getmembervalue25, 1
+  %calltmp26 = call i8 @String_get(%String %deref21, i64 %sub)
+  %eq27 = icmp eq i8 %calltmp26, 10
+  br i1 %eq27, label %if.then.019, label %if.end28
 
 if.then.019:                                      ; preds = %if.cond.018
   br label %break-read
-  br label %if.end27
+  br label %if.end28
 
-if.end27:                                         ; preds = %if.then.019, %if.cond.018
+if.end28:                                         ; preds = %if.then.019, %if.cond.018
   br label %continue-read
 }
 
@@ -3559,14 +3901,42 @@ entry:
   %calltmp2 = call %Result @read_line(ptr %input, ptr %add_len)
   %calltmp3 = call ptr @"unwrap?"(%Result %calltmp2)
   %input4 = load %String, ptr %input, align 8
-  %calltmp5 = call %String @String_trim(%String %input4)
-  %trimed = alloca %String, align 8
-  store %String %calltmp5, ptr %trimed, align 8
-  %trimed6 = load %String, ptr %trimed, align 8
-  %calltmp7 = call ptr @String_as_str(%String %trimed6)
-  %calltmp8 = call i32 (ptr, ...) @printf(ptr @str_30, ptr %calltmp7)
+  %calltmp5 = call %VecT @String_split_whitespace(%String %input4)
+  %v = alloca %VecT, align 8
+  store %VecT %calltmp5, ptr %v, align 8
+  %v6 = load %VecT, ptr %v, align 8
+  %calltmp7 = call %Iterator @VecT_iter(%VecT %v6)
+  %it = alloca %Iterator, align 8
+  store %Iterator %calltmp7, ptr %it, align 8
+  br label %loop_start-loop
+
+loop_start-loop:                                  ; preds = %entry
+  br label %continue-loop
+
+continue-loop:                                    ; preds = %no_judge_continue-loop, %loop_start-loop
+  %calltmp8 = call %Option @iter_peek(ptr %it)
+  %calltmp9 = call i1 @is_some(%Option %calltmp8)
+  br i1 %calltmp9, label %no_judge_continue-loop, label %break-loop
+
+no_judge_continue-loop:                           ; preds = %continue-loop
+  %calltmp10 = call %Option @iter_next(ptr %it)
+  %calltmp11 = call ptr @unwrap(%Option %calltmp10)
+  %deref = load %StrSlice, ptr %calltmp11, align 8
+  %str = alloca %StrSlice, align 8
+  store %StrSlice %deref, ptr %str, align 8
+  %str12 = load %StrSlice, ptr %str, align 8
+  %calltmp13 = call %String @StrSlice_to_String(%StrSlice %str12)
+  %string = alloca %String, align 8
+  store %String %calltmp13, ptr %string, align 8
+  %string14 = load %String, ptr %string, align 8
+  %calltmp15 = call ptr @String_as_str(%String %string14)
+  %calltmp16 = call i32 (ptr, ...) @printf(ptr @str_30, ptr %calltmp15)
+  call void @String_free(ptr %string)
+  br label %continue-loop
+
+break-loop:                                       ; preds = %continue-loop
+  call void @VecT_free(ptr %v)
   call void @String_free(ptr %input)
-  call void @String_free(ptr %trimed)
   ret i32 0
 }
 

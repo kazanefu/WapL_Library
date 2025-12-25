@@ -1,4 +1,6 @@
 use "./std/VecT.wapl"
+use "./std/Slice.wapl"
+use "./std/Iterator.wapl"
 declare strcmp(ptr:char, ptr:char):i32;
 
 struct String{
@@ -86,8 +88,8 @@ fn String_push(&mut:String &self,&:String value):ptr:String{
     return &self;
 }
 
-fn String_get(ptr:String &self,i64 indx):char{
-    return [](*_(->(&self,data)),indx);
+fn String_get(String self,i64 indx):char{
+    return [](.(self,data),indx);
 }
 
 fn String_free(ptr:String &self){
@@ -133,6 +135,10 @@ fn String_as_StrSlice(String string):StrSlice{
     return StrSlice_new(String_as_str(string),.(string,len));
 }
 
+fn StrSlice_to_String(StrSlice str):String{
+    return String_from_with_len(StrSlice_as_str(str),.(str,len));
+}
+
 fn is_space(char c):bool{
     return ||(||(||(==(c,' '),==(c,'\n')),==(c,'\t')),==(c,'\r'));
 }
@@ -173,4 +179,64 @@ fn StrSlice_trim(StrSlice str):StrSlice{
 fn String_trim(String string):String{
     #=(trimedstr,str_trim(String_as_str(string)),StrSlice);
     return String_from_with_len(.(trimedstr,data),.(trimedstr,len));
+}
+
+fn StrSlice_iter(StrSlice str):Iterator{
+    return iter(StrSlice_as_str(str),ptr_add(StrSlice_as_str(str),.(str,len)),sizeof(char));
+}
+fn String_iter(String string):Iterator{
+    #=(str,String_as_StrSlice(string),StrSlice);
+    return StrSlice_iter(str);
+}
+
+fn String_split_whitespace(String src):VecT{
+    #=(vec_strslice,VecT_new(sizeof(StrSlice),1),VecT);
+    #=(index,0,i64);
+    #=(part_len,0,i64);
+    #=(src_str,String_as_str(src),ptr:char);
+    #=(start,src_str,ptr:char);
+    #=(it,String_iter(src),Iterator);
+    loopif:add_unsafe(is_some(iter_peek(&_(it)))){
+        #=(c,*_(unwrap(iter_next(&_(it))),char),char);
+        =(index,+(index,1));
+        if(is_space(c)){
+            if(>(part_len,0)){
+                VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
+            }
+            =(part_len,0);
+            =(start,ptr_add(src_str,index)); // 空白の終わりの次のとこを次のstartにする
+            warpto(continue-add_unsafe);
+        }
+        =(part_len,+(part_len,1));
+    }
+    if(>(part_len,0)){
+        VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
+    }
+    return vec_strslice;
+}
+
+fn String_split(String src,char key):VecT{
+    #=(vec_strslice,VecT_new(sizeof(StrSlice),1),VecT);
+    #=(index,0,i64);
+    #=(part_len,0,i64);
+    #=(src_str,String_as_str(src),ptr:char);
+    #=(start,src_str,ptr:char);
+    #=(it,String_iter(src),Iterator);
+    loopif:add_unsafe(is_some(iter_peek(&_(it)))){
+        #=(c,*_(unwrap(iter_next(&_(it))),char),char);
+        =(index,+(index,1));
+        if(==(c,key)){
+            if(>(part_len,0)){
+                VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
+            }
+            =(part_len,0);
+            =(start,ptr_add(src_str,index)); // 空白の終わりの次のとこを次のstartにする
+            warpto(continue-add_unsafe);
+        }
+        =(part_len,+(part_len,1));
+    }
+    if(>(part_len,0)){
+        VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
+    }
+    return vec_strslice;
 }

@@ -1,0 +1,11 @@
+struct Slice{
+    ptr:T data,
+    i64 len
+}
+
+fn Slice_new(ptr:T value,i64 len):Slice{
+    #=(slice,_,Slice);
+    =(.(slice,data),value);
+    =(.(slice,len),len);
+    return slice;
+}

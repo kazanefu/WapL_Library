@@ -4,9 +4,19 @@ fn main():i32{
     #=(input,String_new(),String);
     #=(add_len,_,i64);
     unwrap?( read_line(&_(input),&_(add_len)) );
-    #=(trimed,String_trim(input),String);
-    printf("%s",String_as_str(trimed));
+
+    #=(v,String_split_whitespace(input),VecT);
+    #=(it,VecT_iter(v),Iterator);
+    loopif:(is_some(iter_peek(&_(it)))){
+        #=(str,*_(unwrap(iter_next(&_(it))),StrSlice),StrSlice);
+        #=(string,StrSlice_to_String(str),String);
+        printf("%s:\n",String_as_str(string));
+        String_free(&_(string));
+    }
+
+    VecT_free(&_(v));
+
     String_free(&_(input));
-    String_free(&_(trimed));
+
     return 0s;
 }

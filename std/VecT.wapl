@@ -1,3 +1,5 @@
+use "./std/Iterator.wapl"
+
 struct VecT{
     ptr:T data,
     i64 elem_size,
@@ -28,8 +30,8 @@ fn VecT_push(ptr:VecT &self,ptr:T value):ptr:T{
     return value;
 }
 
-fn VecT_get(ptr:VecT &self,i64 indx):ptr:T{
-    return ptr_add(_>(&self,data),*(indx,_>(&self,elem_size)));
+fn VecT_get(VecT self,i64 indx):ptr:T{
+    return ptr_add(.(self,data),*(indx,.(self,elem_size)));
 }
 
 fn VecT_free(ptr:VecT &self){
@@ -72,4 +74,8 @@ fn VecT_rangei64(i64 start,i64 end,i64 step):VecT{
         =(i,+(i,step));
     }
     return v;
+}
+
+fn VecT_iter(VecT vec):Iterator{
+    return iter(.(vec,data),VecT_get(vec,.(vec,len)),.(vec,elem_size));
 }

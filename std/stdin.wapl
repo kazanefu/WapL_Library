@@ -58,7 +58,7 @@ fn read_line(&mut:String buf,&mut:i64 add_len):Result{
 
         String_free(&_(temp_string));
 
-        if (==(String_get(buf,-(.(*_(buf),len),1)),'\n')){
+        if (==(String_get(*_(buf),-(.(*_(buf),len),1)),'\n')){
             warpto(break-read);
         }
 

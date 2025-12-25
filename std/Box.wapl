@@ -1,0 +1,17 @@
+struct Box{
+    *:T value,
+    i64 elem_size
+}
+
+fn Box(&:T src,i64 elem_size):Box{
+    #=(value,malloc(elem_size,T),*:T);
+    #=(box,_,Box);
+    memcpy(value,src,elem_size);
+    =(.(box,value),pmove(value));
+    =(.(box,elem_size),elem_size);
+    return box;
+}
+
+fn Box_open(Box box):ptr:T{
+    return .(box,value);
+}
