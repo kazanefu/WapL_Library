@@ -6,6 +6,19 @@ struct String{
     i64 len,
     i64 cap,
 }
+struct StrSlice{
+    ptr:char data,
+    i64 len,
+}
+
+fn StrSlice_new(ptr:char data,i64 len):StrSlice{
+    #=(new,_,StrSlice);
+    =(.(new,data),data);
+    =(.(new,len),len);
+    return new;
+}
+
+
 
 fn String_new(i64 capa):String{
     #=(v,_,String);
@@ -29,10 +42,27 @@ fn String_strlen(ptr:char c):i64{
     return i;
 }
 
+fn StrSlice_from(ptr:char c):StrSlice{
+    #=(c_len,String_strlen(c),i64);
+    return StrSlice_new(c,c_len);
+}
+
 fn String_from(ptr:char c):String{
     #=(v,_,String);
     #=(vp,&_(v),ptr:String);
     #=(c_len,String_strlen(c),i64);
+    #=(d,malloc(+(c_len,1),char),ptr:char);
+    =(val(->(vp,data)),d);
+    =(val(->(vp,len)),c_len);
+    =(val(->(vp,cap)),c_len);
+    memcpy(val(->(vp,data)),c,c_len);
+    =([](val(->(vp,data)),val(->(vp,len))),'\0')
+    return v;
+}
+fn String_from_with_len(ptr:char c,i64 len):String{
+    #=(v,_,String);
+    #=(vp,&_(v),ptr:String);
+    #=(c_len,len,i64);
     #=(d,malloc(+(c_len,1),char),ptr:char);
     =(val(->(vp,data)),d);
     =(val(->(vp,len)),c_len);
@@ -90,4 +120,57 @@ fn String_clone(String string):String{
     memcpy(d,.(string,data),+(.(string,len),1));
     =(.(clone,data),pmove(d));
     return clone;
+}
+
+fn String_as_str(String string):ptr:char{
+    return .(string,data);
+}
+fn StrSlice_as_str(StrSlice str):ptr:char{
+    return .(str,data);
+}
+
+fn String_as_StrSlice(String string):StrSlice{
+    return StrSlice_new(String_as_str(string),.(string,len));
+}
+
+fn is_space(char c):bool{
+    return ||(||(||(==(c,' '),==(c,'\n')),==(c,'\t')),==(c,'\r'));
+}
+
+fn str_trim(ptr:char str):StrSlice{
+    #=(start,0,i64);
+    // 前方トリム
+    loopif:start(true){
+        #=(c,[](str,start),char);
+        if(is_space(c)){
+            =(start,+(start,1));
+        }else{
+            warpto(break-start);
+        }
+    }
+    #=(end,String_strlen(ptr_add(str,start)),i64);
+    // 後方トリム
+    loopif:end(>(end,start)){
+        #=(c,[](ptr_add(str,start),-(end,1)),char);
+        if(is_space(c)){
+            =(end,-(end,1));
+        }else{
+            warpto(break-end);
+        }
+    }
+    #=(slice,StrSlice_new(
+        ptr_add(str,start),
+        end
+    ),
+    StrSlice);
+    return slice;
+}
+
+fn StrSlice_trim(StrSlice str):StrSlice{
+    return str_trim(StrSlice_as_str(str));
+}
+
+fn String_trim(String string):String{
+    #=(trimedstr,str_trim(String_as_str(string)),StrSlice);
+    return String_from_with_len(.(trimedstr,data),.(trimedstr,len));
 }

@@ -12,4 +12,6 @@ use "./std/keymap.wapl";
 use "./std/cli_screen.wapl";
 use "./std/Complex.wapl";
 use "./std/Option.wapl";
+use "./std/Result.wapl";
 use "./std/Iterator.wapl";
+use "./std/stdin.wapl";

@@ -41,3 +41,10 @@ fn expect(Option self,&:char error_message):ptr:T{
         return null();
     }
 }
+fn unwrap_or(Option self,ptr:T or_value):ptr:T{
+    if(.(self,is_some)){
+        return .(self,value);
+    }else{
+        return or_value;
+    }
+}

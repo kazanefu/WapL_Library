@@ -1,0 +1,69 @@
+use "./std/utility.wapl";
+use "./std/String.wapl"
+use "./std/Result.wapl"
+struct FILE {
+    char dummy
+}
+
+#=_extern_global(stdin,ptr:FILE);
+
+declare fgets(ptr:char, i32, ptr:FILE):ptr:char;
+declare feof(ptr:FILE):i32;
+
+fn __read_line_raw(&mut:char buf,i32 cap):i64{
+    #=(fp,load_global(stdin),ptr:FILE);
+
+    // fgets returns borrowed pointer (alias of buf)
+    #=(r,fgets(p&mut(buf),cap,fp),&:char);
+    if(==(r,null())){
+        if(>(feof(fp),0s)){
+            return 0;
+        }
+        return -1;
+    }
+
+    // strlen (NULは含めない)
+    #=(i,0,i64);
+    loopif:(true){
+        if(==([](buf,i),'\0')){
+            return i;
+        }
+        =(i,+(i,1));
+    }
+    return -1; // この記述だとリターンしない可能性があるとコンパイラが判断するためダミーの戻り値
+}
+
+fn read_line(&mut:String buf,&mut:i64 add_len):Result{
+    #=(before,.(*_(buf),len),i64);
+    
+
+    loopif:read(true){
+        #=(cap_add,256s,i32);
+        #=(temp_dst,malloc(cap_add,char),*:char);
+
+        #=(n,__read_line_raw(temp_dst,cap_add),i64);
+        
+        if(<(n,0)){
+            return Err("IOError");
+        }elif(==(n,0)){
+            // EOF: no bytes were appended to buf
+            =(*_(add_len),0);
+            return Ok(add_len);
+        }
+
+        #=(temp_string,String_from(temp_dst),String);
+        free(pmove(temp_dst));
+
+        String_push(buf,&_(temp_string));
+
+        String_free(&_(temp_string));
+
+        if (==(String_get(buf,-(.(*_(buf),len),1)),'\n')){
+            warpto(break-read);
+        }
+
+    }
+    =(*_(add_len),-(.(*_(buf),len),before));
+    return Ok(add_len);
+
+}

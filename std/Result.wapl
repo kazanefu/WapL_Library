@@ -1,0 +1,52 @@
+use "./std/utility.wapl";
+struct Result{
+    bool Ok,
+    ptr:T ok_value,
+    ptr:T err_value
+}
+
+
+fn Result_new(bool Ok,ptr:T ok_value,ptr:T err_value):Result{
+    #=(ret,_,Result);
+    =(.(ret,Ok),Ok);
+    =(.(ret,ok_value),ok_value);
+    =(.(ret,err_value),err_value);
+    return ret;
+}
+
+fn Ok(ptr:T value):Result{
+    return Result_new(true,value,null());
+}
+fn Err(ptr:T value):Result{
+    return Result_new(false,null(),value);
+}
+
+fn is_ok(Result self):bool{
+    return .(self,Ok);
+}
+
+fn unwrap?(Result self):ptr:T{
+    if(.(self,Ok)){
+        return .(self,ok_value);
+    }else{
+        println("Error:unexpected unwrap?");
+        exit(1s);
+        return null();
+    }
+}
+fn unwrap_or?(Result self,ptr:T or_value):ptr:T{
+    if(.(self,Ok)){
+        return .(self,ok_value);
+    }else{
+        return or_value;
+    }
+}
+fn expect?(Result self,&:char error_message):ptr:T{
+    if(.(self,Ok)){
+        return .(self,ok_value);
+    }else{
+        println(error_message);
+        exit(1s);
+        return null();
+    }
+}

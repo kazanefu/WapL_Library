@@ -1,21 +1,12 @@
 use "./std/allstd.wapl"
 
-fn voi():void{
-    if(true){
-        println("voi");
-        return VOID();
-    }
-    println("d");
-}
-
 fn main():i32{
-    #=(ans,0,i64);
-    #=(n,_,i64);
-    scanf("%lld",&_(n));
-    //#=(a,input_i64(n),*:i64);
-    voi();
-
-    println(format("%lld",ans));
-    //free(pmove(a));
+    #=(input,String_new(),String);
+    #=(add_len,_,i64);
+    unwrap?( read_line(&_(input),&_(add_len)) );
+    #=(trimed,String_trim(input),String);
+    printf("%s",String_as_str(trimed));
+    String_free(&_(input));
+    String_free(&_(trimed));
     return 0s;
 }
