@@ -1,0 +1,26 @@
+struct FILE_exec {
+    char dummy
+}
+
+declare popen(&:char, &:char): ptr:FILE_exec;
+declare fread(ptr:T, i64, i64, ptr:FILE_exec): i64;
+declare pclose(ptr:FILE_exec): i32;
+
+declare system(&:char): i32;
+
+fn exec(&:char cmd):i32{
+    return >>(system(cmd),8s);
+}
+
+fn exec_capture(&:char cmd, &mut:char buf, i64 cap): i64 {
+    if (<=(cap,1)) {
+        return 0;
+    }
+    #=(fp,popen(cmd, "r"),ptr:FILE_exec);
+    #=(n,fread(buf, 1, -(cap,1), fp),i64);
+    if (<(n ,cap)) {
+        =([](buf, n), '\0');
+    }
+    pclose(fp);
+    return n;
+}

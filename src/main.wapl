@@ -1,9 +1,11 @@
 use "./std/allstd.wapl"
+use "./std/exec.wapl"
 
 fn main():i32{
     #=(input,String_new(),String);
     #=(add_len,_,i64);
     unwrap?( read_line(&_(input),&_(add_len)) );
+    #=(n,_,i32)
 
     #=(v,String_split_whitespace(input),VecT);
     #=(it,VecT_iter(v),Iterator);

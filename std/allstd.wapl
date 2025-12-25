@@ -1,5 +1,6 @@
 use "./std/utility.wapl";
 use "./std/Box.wapl";
+use "./std/exec.wapl";
 use "./std/HelloWorld.wapl";
 use "./std/longinput.wapl";
 use "./std/math.wapl";
