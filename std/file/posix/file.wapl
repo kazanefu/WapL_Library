@@ -1,9 +1,9 @@
 use "./std/String.wapl"
 
 declare open(ptr:char ,i32 ,i32):i32;
-declare read(i32,ptr:char, i64):i64;
+declare read(i32,ptr:char, isize):isize;
 declare close(i32):i32;
-declare lseek(i32,i64,i32):i64;
+declare lseek(i32,isize,i32):isize;
 
 fn read_text_file(&:char path):String{
     #=(O_RDONLY,0s,i32);
@@ -17,7 +17,7 @@ fn read_text_file(&:char path):String{
         warpto(break-f);
     }
 
-    #=(size, lseek(fd, 0, 2s), i64);
+    #=(size, lseek(fd, as(0,isize), 2s), isize);
 
     loopif:size_error(>(size,100000000)){println("The TextFile is Too Long");println(format("%lld",size));; warpto(break-size_error);}
 
@@ -33,10 +33,10 @@ fn read_text_file(&:char path):String{
     #=(buf, malloc(+(size, 1),char), *:char);
 
 
-    #=(total, 0, i64);
+    #=(total, as(0,isize), isize);
 
     loopif:r(<(total, size)){
-        #=(n, read(fd, ptr_add(buf, total), -(size, total)), i64);
+        #=(n, read(fd, ptr_add(buf, total), -(size, total)), isize);
         loopif:e(<=(n, 0)){
             warpto(break-r);   // EOF or error
             warpto(break-e);
