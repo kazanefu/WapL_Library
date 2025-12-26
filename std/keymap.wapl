@@ -103,7 +103,7 @@ fn KeyMap_get_index(&:KeyMap m, String key):isize{
 
 fn KeyMap_insert(&mut:KeyMap m, String key, ptr:T value){
     #=(newsize,+(_>(m,size),1),isize);
-    #=(sz, sizeof(Entry),i64);
+    #=(sz, sizeof(Entry),isize);
     loopif:check_capa(>=(newsize,_>(m,capacity))){
         #=(newcap,*(newsize,2),isize);
         =(_>(m,entries),realloc(_>(m,entries),*(newcap,sz),Entry));
@@ -144,7 +144,7 @@ fn KeyMap_insert_or_assign(&mut:KeyMap m, String key, ptr:T value):i32{
     }
 
     #=(newsize,+(_>(m,size),1),isize);
-    #=(sz, sizeof(Entry),i64);
+    #=(sz, sizeof(Entry),isize);
     loopif:check_capa(>=(newsize,_>(m,capacity))){
         #=(newcap,*(newsize,2),isize);
         =(_>(m,entries),realloc(_>(m,entries),*(newcap,sz),Entry));
