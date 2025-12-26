@@ -2,7 +2,7 @@ use "./std/String.wapl"
 
 fn input_i64(i64 n):ptr:i64{
     #=(a,_,ptr:i64);
-    =(a,malloc(*(sizeof(i64),n),i64));
+    =(a,malloc(*(8_,n),i64));
     #=(i,0,i64);
     warpto(InputStart);
     point InputStart;
@@ -18,7 +18,7 @@ fn input_i64(i64 n):ptr:i64{
 }
 fn input_f64(i64 n):ptr:f64{
     #=(a,_,ptr:f64);
-    =(a,malloc(*(sizeof(f64),n),f64));
+    =(a,malloc(*(8_,n),f64));
     #=(i,0,i64);
     warpto(InputStart);
     point InputStart;
@@ -34,7 +34,7 @@ fn input_f64(i64 n):ptr:f64{
 }
 fn input_char(i64 n):ptr:char{
     #=(a,_,ptr:char);
-    =(a,malloc(*(sizeof(char),*(n,2)),char));
+    =(a,malloc(*(1_,*(n,2)),char));
     #=(i,0,i64);
     warpto(InputStart);
     point InputStart;
@@ -55,7 +55,8 @@ fn input_str():ptr:char{
 }
 fn input_Strings(i64 n):ptr:String{
     #=(a,_,ptr:String);
-    =(a,malloc(*(sizeof(String),n),String));
+    #=(sz,as(sizeof(String),isize),isize)
+    =(a,malloc(*(sz,n),String));
     #=(i,0_,isize);
     loopif:(<(i,as(n,isize))){
         =([](a,i),String_from(input_str()));

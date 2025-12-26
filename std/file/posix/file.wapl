@@ -13,7 +13,7 @@ fn read_text_file(&:char path):String{
     #=(fd, open(path, 0s, 0s), i32);
 
     loopif:f(<(fd,0s)){
-        return String_new(0);
+        return String_new(0_);
         warpto(break-f);
     }
 

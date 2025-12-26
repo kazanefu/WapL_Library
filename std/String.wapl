@@ -182,7 +182,7 @@ fn String_trim(String string):String{
 }
 
 fn StrSlice_iter(StrSlice str):Iterator{
-    return iter(StrSlice_as_str(str),ptr_add(StrSlice_as_str(str),.(str,len)),sizeof(char));
+    return iter(StrSlice_as_str(str),ptr_add(StrSlice_as_str(str),.(str,len)),1_);
 }
 fn String_iter(String string):Iterator{
     #=(str,String_as_StrSlice(string),StrSlice);
@@ -190,35 +190,37 @@ fn String_iter(String string):Iterator{
 }
 
 fn String_split_whitespace(String src):VecT{
-    #=(vec_strslice,VecT_new(sizeof(StrSlice),1),VecT);
-    #=(index,0,i64);
-    #=(part_len,0,i64);
+    #=(sz,as(sizeof(StrSlice),isize),isize);
+    #=(vec_strslice,VecT_new(sz,1_),VecT);
+    #=(index,0_,isize);
+    #=(part_len,0_,isize);
     #=(src_str,String_as_str(src),ptr:char);
     #=(start,src_str,ptr:char);
     #=(it,String_iter(src),Iterator);
     loopif:add_unsafe(is_some(iter_peek(&_(it)))){
         #=(c,*_(unwrap(iter_next(&_(it))),char),char);
-        =(index,+(index,1));
+        =(index,+(index,1_));
         if(is_space(c)){
-            if(>(part_len,0)){
+            if(>(part_len,0_)){
                 VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
             }
-            =(part_len,0);
+            =(part_len,0_);
             =(start,ptr_add(src_str,index)); // 空白の終わりの次のとこを次のstartにする
             warpto(continue-add_unsafe);
         }
         =(part_len,+(part_len,1));
     }
-    if(>(part_len,0)){
+    if(>(part_len,0_)){
         VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
     }
     return vec_strslice;
 }
 
 fn String_split(String src,char key):VecT{
-    #=(vec_strslice,VecT_new(sizeof(StrSlice),1),VecT);
-    #=(index,0,i64);
-    #=(part_len,0,i64);
+    #=(sz,as(sizeof(StrSlice),isize),isize);
+    #=(vec_strslice,VecT_new(sz,1_),VecT);
+    #=(index,0_,isize);
+    #=(part_len,0_,isize);
     #=(src_str,String_as_str(src),ptr:char);
     #=(start,src_str,ptr:char);
     #=(it,String_iter(src),Iterator);
@@ -226,16 +228,16 @@ fn String_split(String src,char key):VecT{
         #=(c,*_(unwrap(iter_next(&_(it))),char),char);
         =(index,+(index,1));
         if(==(c,key)){
-            if(>(part_len,0)){
+            if(>(part_len,0_)){
                 VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
             }
-            =(part_len,0);
+            =(part_len,0_);
             =(start,ptr_add(src_str,index)); // 空白の終わりの次のとこを次のstartにする
             warpto(continue-add_unsafe);
         }
         =(part_len,+(part_len,1));
     }
-    if(>(part_len,0)){
+    if(>(part_len,0_)){
         VecT_push(&_(vec_strslice),&_(StrSlice_new(start,part_len)));
     }
     return vec_strslice;

@@ -7,7 +7,7 @@ struct VecT{
     isize cap,
 }
 
-fn VecT_new(isize e_size,isize capa):VecT{
+fn VecT_new(isize e_size, isize capa):VecT{
     #=(v,_,VecT);
     #=(vp,&_(v),ptr:VecT);
     #=(d,malloc(*(e_size,capa),T),ptr:T);

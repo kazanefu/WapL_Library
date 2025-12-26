@@ -1,18 +1,29 @@
 use "./std/allstd.wapl"
 
-fn __main_argc_argv(i32 argc,ptr:ptr:char argv):i32{
 
-    #=(v,VecT_rangei64(0,11,1),VecT);
+fn main(i32 argc,ptr:ptr:char argv):i32{
+
+    // #=(input,String_new(0_),String);
+
+    #=(add_len,_,isize);
+    // unwrap?( read_line(&_(input),&_(add_len)) );
+
+    #=(n,_,i32);
+
+    #=(input, String_from("hoge hoeg ffo"), String);
+    #=(v,String_split_whitespace(input),VecT);
     #=(it,VecT_iter(v),Iterator);
     loopif:(is_some(iter_peek(&_(it)))){
-        #=(i,*_(unwrap(iter_next(&_(it))),i64),i64);
-        iter_next(&_(it));
-        printf("%lld",i);
-    }
-    VecT_free(&_(v));
-    #=(n,_,i32);
-    scanf("%d",&_(n));
+        #=(str,*_(unwrap(iter_next(&_(it))),StrSlice),StrSlice);
+        #=(string,StrSlice_to_String(str),String);
+        printf( "(%s:)\n",String_as_str(string));
+        String_free(&_(string));
 
-    printf("Hello, World!%d\n",n);
+    }
+
+    VecT_free(&_(v));
+
+    String_free(&_(input));
+
     return 0s;
 }
