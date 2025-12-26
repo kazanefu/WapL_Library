@@ -1,24 +1,18 @@
 use "./std/allstd.wapl"
-use "./std/exec.wapl"
 
-fn main():i32{
-    #=(input,String_new(),String);
-    #=(add_len,_,i64);
-    unwrap?( read_line(&_(input),&_(add_len)) );
-    #=(n,_,i32)
+fn __main_argc_argv(i32 argc,ptr:ptr:char argv):i32{
 
-    #=(v,String_split_whitespace(input),VecT);
+    #=(v,VecT_rangei64(0,11,1),VecT);
     #=(it,VecT_iter(v),Iterator);
     loopif:(is_some(iter_peek(&_(it)))){
-        #=(str,*_(unwrap(iter_next(&_(it))),StrSlice),StrSlice);
-        #=(string,StrSlice_to_String(str),String);
-        printf("%s:\n",String_as_str(string));
-        String_free(&_(string));
+        #=(i,*_(unwrap(iter_next(&_(it))),i64),i64);
+        iter_next(&_(it));
+        printf("%lld",i);
     }
-
     VecT_free(&_(v));
+    #=(n,_,i32);
+    scanf("%d",&_(n));
 
-    String_free(&_(input));
-
+    printf("Hello, World!%d\n",n);
     return 0s;
 }

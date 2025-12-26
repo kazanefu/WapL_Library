@@ -2,18 +2,18 @@ use "./std/Iterator.wapl"
 
 struct VecT{
     ptr:T data,
-    i64 elem_size,
-    i64 len,
-    i64 cap,
+    isize elem_size,
+    isize len,
+    isize cap,
 }
 
-fn VecT_new(i64 e_size,i64 capa):VecT{
+fn VecT_new(isize e_size,isize capa):VecT{
     #=(v,_,VecT);
     #=(vp,&_(v),ptr:VecT);
     #=(d,malloc(*(e_size,capa),T),ptr:T);
     =(val(->(vp,data)),d);
     =(val(->(vp,elem_size)),e_size);
-    =(val(->(vp,len)),0);
+    =(val(->(vp,len)),0_);
     =(val(->(vp,cap)),capa);
     return v;
 }
@@ -21,26 +21,26 @@ fn VecT_new(i64 e_size,i64 capa):VecT{
 fn VecT_push(ptr:VecT &self,ptr:T value):ptr:T{
     warptoif(==(_>(&self,cap),_>(&self,len)),capaover,push);
     point capaover;
-    =(val(->(&self,data)),realloc(_>(&self,data),*(_>(&self,elem_size),*(+(_>(&self,cap),1),2)),T));
-    =(val(->(&self,cap)),*(+(_>(&self,cap),1),2));
+    =(val(->(&self,data)),realloc(_>(&self,data),*(_>(&self,elem_size),*(+(_>(&self,cap),1_),2_)),T));
+    =(val(->(&self,cap)),*(+(_>(&self,cap),1_),2_));
     warpto(push);
     point push;
     memcpy(ptr_add(_>(&self,data),*(_>(&self,len),_>(&self,elem_size))),value,_>(&self,elem_size));
-    =(val(->(&self,len)),+(_>(&self,len),1));
+    =(val(->(&self,len)),+(_>(&self,len),1_));
     return value;
 }
 
-fn VecT_get(VecT self,i64 indx):ptr:T{
+fn VecT_get(VecT self,isize indx):ptr:T{
     return ptr_add(.(self,data),*(indx,.(self,elem_size)));
 }
 
 fn VecT_free(ptr:VecT &self){
     free(_>(&self,data));
-    =(val(->(&self,len)),0);
-    =(val(->(&self,cap)),0);
+    =(val(->(&self,len)),0_);
+    =(val(->(&self,cap)),0_);
 }
 
-fn VecT_from(&:T srcData,i64 e_size, i64 size):VecT{
+fn VecT_from(&:T srcData,isize e_size, isize size):VecT{
     #=(v,_,VecT);
     #=(vp,&_(v),ptr:VecT);
     #=(d,malloc(*(e_size,size),T),*:T);
@@ -53,10 +53,10 @@ fn VecT_from(&:T srcData,i64 e_size, i64 size):VecT{
 }
 
 fn VecT_connect(ptr:VecT &self,ptr:VecT value):ptr:VecT{
-    #=(newlen,+(_>(&self,len),_>(value,len)),i64);
-    #=(needed, *(newlen, _>(&self,elem_size)),i64);
+    #=(newlen,+(_>(&self,len),_>(value,len)),isize);
+    #=(needed, *(newlen, _>(&self,elem_size)),isize);
     loopif:capaover(<=(_>(&self,cap),newlen)){
-        #=(newcap,*( newlen, 2 ),i64);
+        #=(newcap,*( newlen, 2_ ),isize);
         =(_>(&self,data),realloc(_>(&self,data), *(newcap,_>(&self,elem_size)),T));
         =(_>(&self,cap),newcap);
         warpto(break-capaover);
@@ -67,7 +67,7 @@ fn VecT_connect(ptr:VecT &self,ptr:VecT value):ptr:VecT{
 }
 
 fn VecT_rangei64(i64 start,i64 end,i64 step):VecT{
-    #=(v,VecT_new(8,/(-(end,start),step)),VecT);
+    #=(v,VecT_new(8_,as(/(-(end,start),step),isize)),VecT);
     #=(i,start,i64);
     loopif:(<(i,end)){
         VecT_push(&_(v),&_(i));

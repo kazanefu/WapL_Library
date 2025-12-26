@@ -49,15 +49,15 @@ fn input_char(i64 n):ptr:char{
     return a;
 }
 fn input_str():ptr:char{
-    #=(a,malloc(1000005,char),ptr:char);
+    #=(a,malloc(1000005_,char),ptr:char);
     scanf("%1000000s",a);
     return a;
 }
 fn input_Strings(i64 n):ptr:String{
     #=(a,_,ptr:String);
     =(a,malloc(*(sizeof(String),n),String));
-    #=(i,0,i64);
-    loopif:(<(i,n)){
+    #=(i,0_,isize);
+    loopif:(<(i,as(n,isize))){
         =([](a,i),String_from(input_str()));
         =(i,+(i,1));
     }

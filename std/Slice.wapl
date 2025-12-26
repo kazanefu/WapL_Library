@@ -1,9 +1,9 @@
 struct Slice{
     ptr:T data,
-    i64 len
+    isize len
 }
 
-fn Slice_new(ptr:T value,i64 len):Slice{
+fn Slice_new(ptr:T value,isize len):Slice{
     #=(slice,_,Slice);
     =(.(slice,data),value);
     =(.(slice,len),len);

@@ -10,44 +10,44 @@ struct FILE {
 declare fgets(ptr:char, i32, ptr:FILE):ptr:char;
 declare feof(ptr:FILE):i32;
 
-fn __read_line_raw(&mut:char buf,i32 cap):i64{
+fn __read_line_raw(&mut:char buf,i32 cap):isize{
     #=(fp,load_global(stdin),ptr:FILE);
 
     // fgets returns borrowed pointer (alias of buf)
     #=(r,fgets(p&mut(buf),cap,fp),&:char);
     if(==(r,null())){
         if(>(feof(fp),0s)){
-            return 0;
+            return 0_;
         }
-        return -1;
+        return -1_;
     }
 
     // strlen (NULは含めない)
-    #=(i,0,i64);
+    #=(i,0_,isize);
     loopif:(true){
         if(==([](buf,i),'\0')){
             return i;
         }
         =(i,+(i,1));
     }
-    return -1; // この記述だとリターンしない可能性があるとコンパイラが判断するためダミーの戻り値
+    return -1_; // この記述だとリターンしない可能性があるとコンパイラが判断するためダミーの戻り値
 }
 
-fn read_line(&mut:String buf,&mut:i64 add_len):Result{
-    #=(before,.(*_(buf),len),i64);
+fn read_line(&mut:String buf,&mut:isize add_len):Result{
+    #=(before,.(*_(buf),len),isize);
     
 
     loopif:read(true){
         #=(cap_add,256s,i32);
         #=(temp_dst,malloc(cap_add,char),*:char);
 
-        #=(n,__read_line_raw(temp_dst,cap_add),i64);
+        #=(n,__read_line_raw(temp_dst,cap_add),isize);
         
-        if(<(n,0)){
+        if(<(n,0_)){
             return Err("IOError");
-        }elif(==(n,0)){
+        }elif(==(n,0_)){
             // EOF: no bytes were appended to buf
-            =(*_(add_len),0);
+            =(*_(add_len),0_);
             return Ok(add_len);
         }
 
@@ -58,7 +58,7 @@ fn read_line(&mut:String buf,&mut:i64 add_len):Result{
 
         String_free(&_(temp_string));
 
-        if (==(String_get(*_(buf),-(.(*_(buf),len),1)),'\n')){
+        if (==(String_get(*_(buf),-(.(*_(buf),len),1_)),'\n')){
             warpto(break-read);
         }
 

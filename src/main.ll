@@ -46,9 +46,11 @@ source_filename = "wapl_module"
 @println_fmt_29 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 @stdin = external externally_initialized global ptr
 @str_30 = private unnamed_addr constant [8 x i8] c"IOError\00", align 1
-@str_31 = private unnamed_addr constant [5 x i8] c"%s:\0A\00", align 1
+@str_31 = private unnamed_addr constant [5 x i8] c"%lld\00", align 1
+@str_32 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@str_33 = private unnamed_addr constant [17 x i8] c"Hello, World!%d\0A\00", align 1
 
-declare i32 @strtol(ptr, ptr, i32)
+declare i64 @strtol(ptr, ptr, i32)
 
 declare double @atof(ptr)
 
@@ -56,9 +58,9 @@ declare i32 @printf(ptr, ...)
 
 declare i32 @sprintf(ptr, ptr, ...)
 
-declare ptr @realloc(ptr, i32)
+declare ptr @realloc(ptr, i64)
 
-declare ptr @malloc(i32)
+declare ptr @malloc(i64)
 
 declare void @free(ptr)
 
@@ -2538,11 +2540,11 @@ entry:
 
 declare i32 @open(ptr, i32, i32)
 
-declare i32 @read(i32, ptr, i32)
+declare i64 @read(i32, ptr, i64)
 
 declare i32 @close(i32)
 
-declare i32 @lseek(i32, i32, i32)
+declare i64 @lseek(i32, i64, i32)
 
 define %String @read_text_file(ptr %path) {
 entry:
@@ -2577,39 +2579,39 @@ no_judge_continue-f:                              ; preds = %continue-f
 
 break-f:                                          ; preds = %no_judge_continue-f, %continue-f
   %fd5 = load i32, ptr %fd, align 4
-  %calltmp6 = call i32 @lseek(i32 %fd5, i32 0, i32 2)
-  %size = alloca i32, align 4
-  store i32 %calltmp6, ptr %size, align 4
+  %calltmp6 = call i64 @lseek(i32 %fd5, i64 0, i32 2)
+  %size = alloca i64, align 8
+  store i64 %calltmp6, ptr %size, align 4
   br label %loop_start-size_error
 
 loop_start-size_error:                            ; preds = %break-f
   br label %continue-size_error
 
 continue-size_error:                              ; preds = %no_judge_continue-size_error, %loop_start-size_error
-  %size7 = load i32, ptr %size, align 4
-  %sgt = icmp sgt i32 %size7, i64 100000000
+  %size7 = load i64, ptr %size, align 4
+  %sgt = icmp sgt i64 %size7, 100000000
   br i1 %sgt, label %no_judge_continue-size_error, label %break-size_error
 
 no_judge_continue-size_error:                     ; preds = %continue-size_error
   %printf = call i32 (ptr, ...) @printf(ptr @println_fmt_16, ptr @str_15)
-  %size8 = load i32, ptr %size, align 4
+  %size8 = load i64, ptr %size, align 4
   %fmt_buf = alloca [128 x i8], align 1
-  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_17, i32 %size8)
+  %sprintf = call i32 (ptr, ptr, ...) @sprintf(ptr %fmt_buf, ptr @str_17, i64 %size8)
   %printf9 = call i32 (ptr, ...) @printf(ptr @println_fmt_18, ptr %fmt_buf)
   br label %break-size_error
   br label %continue-size_error
 
 break-size_error:                                 ; preds = %no_judge_continue-size_error, %continue-size_error
   %fd10 = load i32, ptr %fd, align 4
-  %calltmp11 = call i32 @lseek(i32 %fd10, i64 0, i32 0)
+  %calltmp11 = call i64 @lseek(i32 %fd10, i64 0, i32 0)
   br label %loop_start-s
 
 loop_start-s:                                     ; preds = %break-size_error
   br label %continue-s
 
 continue-s:                                       ; preds = %no_judge_continue-s, %loop_start-s
-  %size12 = load i32, ptr %size, align 4
-  %sle = icmp sle i32 %size12, i64 0
+  %size12 = load i64, ptr %size, align 4
+  %sle = icmp sle i64 %size12, 0
   br i1 %sle, label %no_judge_continue-s, label %break-s
 
 no_judge_continue-s:                              ; preds = %continue-s
@@ -2621,62 +2623,60 @@ no_judge_continue-s:                              ; preds = %continue-s
   br label %continue-s
 
 break-s:                                          ; preds = %no_judge_continue-s, %continue-s
-  %size16 = load i32, ptr %size, align 4
-  %add = add i32 %size16, 1
-  %malloc_call = call ptr @malloc(i32 %add)
+  %size16 = load i64, ptr %size, align 4
+  %add = add i64 %size16, 1
+  %malloc_call = call ptr @malloc(i64 %add)
   %buf = alloca ptr, align 8
   store ptr %malloc_call, ptr %buf, align 8
-  %total = alloca i32, align 4
-  store i32 0, ptr %total, align 4
+  %total = alloca i64, align 8
+  store i64 0, ptr %total, align 4
   br label %loop_start-r
 
 loop_start-r:                                     ; preds = %break-s
   br label %continue-r
 
 continue-r:                                       ; preds = %break-e, %loop_start-r
-  %total17 = load i32, ptr %total, align 4
-  %size18 = load i32, ptr %size, align 4
-  %slt19 = icmp slt i32 %total17, %size18
+  %total17 = load i64, ptr %total, align 4
+  %size18 = load i64, ptr %size, align 4
+  %slt19 = icmp slt i64 %total17, %size18
   br i1 %slt19, label %no_judge_continue-r, label %break-r
 
 no_judge_continue-r:                              ; preds = %continue-r
   %fd20 = load i32, ptr %fd, align 4
   %buf21 = load ptr, ptr %buf, align 8
-  %total22 = load i32, ptr %total, align 4
-  %idx_i64 = sext i32 %total22 to i64
-  %ptr_add = getelementptr i8, ptr %buf21, i64 %idx_i64
-  %size23 = load i32, ptr %size, align 4
-  %total24 = load i32, ptr %total, align 4
-  %sub = sub i32 %size23, %total24
-  %calltmp25 = call i32 @read(i32 %fd20, ptr %ptr_add, i32 %sub)
-  %n = alloca i32, align 4
-  store i32 %calltmp25, ptr %n, align 4
+  %total22 = load i64, ptr %total, align 4
+  %ptr_add = getelementptr i8, ptr %buf21, i64 %total22
+  %size23 = load i64, ptr %size, align 4
+  %total24 = load i64, ptr %total, align 4
+  %sub = sub i64 %size23, %total24
+  %calltmp25 = call i64 @read(i32 %fd20, ptr %ptr_add, i64 %sub)
+  %n = alloca i64, align 8
+  store i64 %calltmp25, ptr %n, align 4
   br label %loop_start-e
 
 break-r:                                          ; preds = %no_judge_continue-e, %continue-r
   %buf31 = load ptr, ptr %buf, align 8
-  %total32 = load i32, ptr %total, align 4
-  %idx_i6433 = sext i32 %total32 to i64
-  %idx_ptr = getelementptr i8, ptr %buf31, i64 %idx_i6433
+  %total32 = load i64, ptr %total, align 4
+  %idx_ptr = getelementptr i8, ptr %buf31, i64 %total32
   %"idx[]_load" = load i8, ptr %idx_ptr, align 1
   store i8 0, ptr %idx_ptr, align 1
-  %fd34 = load i32, ptr %fd, align 4
-  %calltmp35 = call i32 @close(i32 %fd34)
-  %buf36 = load ptr, ptr %buf, align 8
-  %calltmp37 = call %String @String_from(ptr %buf36)
+  %fd33 = load i32, ptr %fd, align 4
+  %calltmp34 = call i32 @close(i32 %fd33)
+  %buf35 = load ptr, ptr %buf, align 8
+  %calltmp36 = call %String @String_from(ptr %buf35)
   %ret = alloca %String, align 8
-  store %String %calltmp37, ptr %ret, align 8
-  %buf38 = load ptr, ptr %buf, align 8
-  call void @free(ptr %buf38)
-  %ret39 = load %String, ptr %ret, align 8
-  ret %String %ret39
+  store %String %calltmp36, ptr %ret, align 8
+  %buf37 = load ptr, ptr %buf, align 8
+  call void @free(ptr %buf37)
+  %ret38 = load %String, ptr %ret, align 8
+  ret %String %ret38
 
 loop_start-e:                                     ; preds = %no_judge_continue-r
   br label %continue-e
 
 continue-e:                                       ; preds = %no_judge_continue-e, %loop_start-e
-  %n26 = load i32, ptr %n, align 4
-  %sle27 = icmp sle i32 %n26, i64 0
+  %n26 = load i64, ptr %n, align 4
+  %sle27 = icmp sle i64 %n26, 0
   br i1 %sle27, label %no_judge_continue-e, label %break-e
 
 no_judge_continue-e:                              ; preds = %continue-e
@@ -2685,10 +2685,10 @@ no_judge_continue-e:                              ; preds = %continue-e
   br label %continue-e
 
 break-e:                                          ; preds = %no_judge_continue-e, %continue-e
-  %total28 = load i32, ptr %total, align 4
-  %n29 = load i32, ptr %n, align 4
-  %add30 = add i32 %total28, %n29
-  store i32 %add30, ptr %total, align 4
+  %total28 = load i64, ptr %total, align 4
+  %n29 = load i64, ptr %n, align 4
+  %add30 = add i64 %total28, %n29
+  store i64 %add30, ptr %total, align 4
   br label %continue-r
 }
 
@@ -3965,56 +3965,49 @@ if.end28:                                         ; preds = %if.then.019, %if.co
   br label %continue-read
 }
 
-define i32 @main() {
+define i32 @main(i32 %argc, ptr %argv) {
 entry:
+  %argc1 = alloca i32, align 4
+  store i32 %argc, ptr %argc1, align 4
+  %argv2 = alloca ptr, align 8
+  store ptr %argv, ptr %argv2, align 8
   %ret_val = alloca i32, align 4
   %calltmp = call i32 @_TOPLEVEL_()
-  %calltmp1 = call %String @String_new()
-  %input = alloca %String, align 8
-  store %String %calltmp1, ptr %input, align 8
-  %add_len = alloca i64, align 8
-  store i64 0, ptr %add_len, align 4
-  %calltmp2 = call %Result @read_line(ptr %input, ptr %add_len)
-  %calltmp3 = call ptr @"unwrap?"(%Result %calltmp2)
-  %n = alloca i32, align 4
-  store i32 0, ptr %n, align 4
-  %input4 = load %String, ptr %input, align 8
-  %calltmp5 = call %VecT @String_split_whitespace(%String %input4)
+  %calltmp3 = call %VecT @VecT_rangei64(i64 0, i64 11, i64 1)
   %v = alloca %VecT, align 8
-  store %VecT %calltmp5, ptr %v, align 8
-  %v6 = load %VecT, ptr %v, align 8
-  %calltmp7 = call %Iterator @VecT_iter(%VecT %v6)
+  store %VecT %calltmp3, ptr %v, align 8
+  %v4 = load %VecT, ptr %v, align 8
+  %calltmp5 = call %Iterator @VecT_iter(%VecT %v4)
   %it = alloca %Iterator, align 8
-  store %Iterator %calltmp7, ptr %it, align 8
+  store %Iterator %calltmp5, ptr %it, align 8
   br label %loop_start-loop
 
 loop_start-loop:                                  ; preds = %entry
   br label %continue-loop
 
 continue-loop:                                    ; preds = %no_judge_continue-loop, %loop_start-loop
-  %calltmp8 = call %Option @iter_peek(ptr %it)
-  %calltmp9 = call i1 @is_some(%Option %calltmp8)
-  br i1 %calltmp9, label %no_judge_continue-loop, label %break-loop
+  %calltmp6 = call %Option @iter_peek(ptr %it)
+  %calltmp7 = call i1 @is_some(%Option %calltmp6)
+  br i1 %calltmp7, label %no_judge_continue-loop, label %break-loop
 
 no_judge_continue-loop:                           ; preds = %continue-loop
+  %calltmp8 = call %Option @iter_next(ptr %it)
+  %calltmp9 = call ptr @unwrap(%Option %calltmp8)
+  %deref = load i64, ptr %calltmp9, align 4
+  %i = alloca i64, align 8
+  store i64 %deref, ptr %i, align 4
   %calltmp10 = call %Option @iter_next(ptr %it)
-  %calltmp11 = call ptr @unwrap(%Option %calltmp10)
-  %deref = load %StrSlice, ptr %calltmp11, align 8
-  %str = alloca %StrSlice, align 8
-  store %StrSlice %deref, ptr %str, align 8
-  %str12 = load %StrSlice, ptr %str, align 8
-  %calltmp13 = call %String @StrSlice_to_String(%StrSlice %str12)
-  %string = alloca %String, align 8
-  store %String %calltmp13, ptr %string, align 8
-  %string14 = load %String, ptr %string, align 8
-  %calltmp15 = call ptr @String_as_str(%String %string14)
-  %calltmp16 = call i32 (ptr, ...) @printf(ptr @str_31, ptr %calltmp15)
-  call void @String_free(ptr %string)
+  %i11 = load i64, ptr %i, align 4
+  %calltmp12 = call i32 (ptr, ...) @printf(ptr @str_31, i64 %i11)
   br label %continue-loop
 
 break-loop:                                       ; preds = %continue-loop
   call void @VecT_free(ptr %v)
-  call void @String_free(ptr %input)
+  %n = alloca i32, align 4
+  store i32 0, ptr %n, align 4
+  %scanf = call i32 (ptr, ...) @scanf(ptr @str_32, ptr %n)
+  %n13 = load i32, ptr %n, align 4
+  %calltmp14 = call i32 (ptr, ...) @printf(ptr @str_33, i32 %n13)
   ret i32 0
 }
 

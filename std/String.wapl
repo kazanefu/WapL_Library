@@ -5,15 +5,15 @@ declare strcmp(ptr:char, ptr:char):i32;
 
 struct String{
     ptr:char data,
-    i64 len,
-    i64 cap,
+    isize len,
+    isize cap,
 }
 struct StrSlice{
     ptr:char data,
-    i64 len,
+    isize len,
 }
 
-fn StrSlice_new(ptr:char data,i64 len):StrSlice{
+fn StrSlice_new(ptr:char data,isize len):StrSlice{
     #=(new,_,StrSlice);
     =(.(new,data),data);
     =(.(new,len),len);
@@ -22,38 +22,38 @@ fn StrSlice_new(ptr:char data,i64 len):StrSlice{
 
 
 
-fn String_new(i64 capa):String{
+fn String_new(isize capa):String{
     #=(v,_,String);
     #=(vp,&_(v),ptr:String);
-    #=(d,malloc(+(capa,1),char),ptr:char);
+    #=(d,malloc(+(capa,1_),char),ptr:char);
     =(val(->(vp,data)),d);
-    =(val(->(vp,len)),0);
+    =(val(->(vp,len)),0_);
     =(val(->(vp,cap)),capa);
     return v;
 }
 
-fn String_strlen(ptr:char c):i64{
-    #=(i,0,i64);
+fn String_strlen(ptr:char c):isize{
+    #=(i,0_,isize);
     warpto(LoopStart);
     point LoopStart;
     warptoif(==([](c,i),'\0'),Break,InLoop);
     point InLoop;
-        =(i,+(i,1));
+        =(i,+(i,1_));
     warpto(LoopStart);
     point Break;
     return i;
 }
 
 fn StrSlice_from(ptr:char c):StrSlice{
-    #=(c_len,String_strlen(c),i64);
+    #=(c_len,String_strlen(c),isize);
     return StrSlice_new(c,c_len);
 }
 
 fn String_from(ptr:char c):String{
     #=(v,_,String);
     #=(vp,&_(v),ptr:String);
-    #=(c_len,String_strlen(c),i64);
-    #=(d,malloc(+(c_len,1),char),ptr:char);
+    #=(c_len,String_strlen(c),isize);
+    #=(d,malloc(+(c_len,1_),char),ptr:char);
     =(val(->(vp,data)),d);
     =(val(->(vp,len)),c_len);
     =(val(->(vp,cap)),c_len);
@@ -61,11 +61,11 @@ fn String_from(ptr:char c):String{
     =([](val(->(vp,data)),val(->(vp,len))),'\0')
     return v;
 }
-fn String_from_with_len(ptr:char c,i64 len):String{
+fn String_from_with_len(ptr:char c,isize len):String{
     #=(v,_,String);
     #=(vp,&_(v),ptr:String);
-    #=(c_len,len,i64);
-    #=(d,malloc(+(c_len,1),char),ptr:char);
+    #=(c_len,len,isize);
+    #=(d,malloc(+(c_len,1_),char),ptr:char);
     =(val(->(vp,data)),d);
     =(val(->(vp,len)),c_len);
     =(val(->(vp,cap)),c_len);
@@ -75,9 +75,9 @@ fn String_from_with_len(ptr:char c,i64 len):String{
 }
 
 fn String_push(&mut:String &self,&:String value):ptr:String{
-    #=(needed, +(_>(&self,len),_>(value,len)),i64);
+    #=(needed, +(_>(&self,len),_>(value,len)),isize);
     loopif:capaover(<(_>(&self,cap),+(needed,1))){
-        #=(newcap,*( needed, 2 ),i64);
+        #=(newcap,*( needed, 2 ),isize);
         =(_>(&self,data),realloc(_>(&self,data), +( newcap, 1),char));
         =(_>(&self,cap),newcap);
         warpto(break-capaover);
@@ -88,14 +88,14 @@ fn String_push(&mut:String &self,&:String value):ptr:String{
     return &self;
 }
 
-fn String_get(String self,i64 indx):char{
+fn String_get(String self,isize indx):char{
     return [](.(self,data),indx);
 }
 
 fn String_free(ptr:String &self){
     free(_>(&self,data));
-    =(val(->(&self,len)),0);
-    =(val(->(&self,cap)),0);
+    =(val(->(&self,len)),0_);
+    =(val(->(&self,cap)),0_);
 }
 
 fn str_cmp(ptr:char str1, ptr:char str2):i64{
@@ -111,7 +111,7 @@ fn str_eq(ptr:char str1, ptr:char str2):bool{
 }
 
 fn String_to_VecT(String string):VecT{
-    return VecT_from(.(string,data),1,.(string,len));
+    return VecT_from(.(string,data),1_,.(string,len));
 }
 
 fn String_clone(String string):String{
@@ -144,7 +144,7 @@ fn is_space(char c):bool{
 }
 
 fn str_trim(ptr:char str):StrSlice{
-    #=(start,0,i64);
+    #=(start,0_,isize);
     // 前方トリム
     loopif:start(true){
         #=(c,[](str,start),char);
@@ -154,7 +154,7 @@ fn str_trim(ptr:char str):StrSlice{
             warpto(break-start);
         }
     }
-    #=(end,String_strlen(ptr_add(str,start)),i64);
+    #=(end,String_strlen(ptr_add(str,start)),isize);
     // 後方トリム
     loopif:end(>(end,start)){
         #=(c,[](ptr_add(str,start),-(end,1)),char);

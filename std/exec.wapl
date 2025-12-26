@@ -3,7 +3,7 @@ struct FILE_exec {
 }
 
 declare popen(&:char, &:char): ptr:FILE_exec;
-declare fread(ptr:T, i64, i64, ptr:FILE_exec): i64;
+declare fread(ptr:T, isize, isize, ptr:FILE_exec): isize;
 declare pclose(ptr:FILE_exec): i32;
 
 declare system(&:char): i32;
@@ -17,7 +17,7 @@ fn exec_capture(&:char cmd, &mut:char buf, i64 cap): i64 {
         return 0;
     }
     #=(fp,popen(cmd, "r"),ptr:FILE_exec);
-    #=(n,fread(buf, 1, -(cap,1), fp),i64);
+    #=(n,as(fread(buf, 1, -(cap,1), fp),i64),i64);
     if (<(n ,cap)) {
         =([](buf, n), '\0');
     }

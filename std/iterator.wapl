@@ -1,7 +1,0 @@
-use "./std/VecT.wapl"
-
-struct Iterator{
-    ptr:ptr:T arr,
-    i64 len,
-    i64 pos
-}

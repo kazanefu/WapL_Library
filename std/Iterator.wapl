@@ -3,10 +3,10 @@ struct Iterator{
     ptr:T pointer,
     ptr:T start,
     ptr:T end,
-    i64 elem_size
+    isize elem_size
 }
 
-fn iter_new(ptr:T pointer,ptr:T start,ptr:T end,i64 elem_size):Iterator{
+fn iter_new(ptr:T pointer,ptr:T start,ptr:T end,isize elem_size):Iterator{
     #=(iter,_,Iterator);
     =(.(iter,pointer),pointer);
     =(.(iter,start),start);
@@ -15,7 +15,7 @@ fn iter_new(ptr:T pointer,ptr:T start,ptr:T end,i64 elem_size):Iterator{
     return iter;
 }
 
-fn iter(ptr:T contents,ptr:T end,i64 elem_size):Iterator{
+fn iter(ptr:T contents,ptr:T end,isize elem_size):Iterator{
     return iter_new(contents,contents,end,elem_size);
 }
 

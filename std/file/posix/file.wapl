@@ -3,7 +3,7 @@ use "./std/String.wapl"
 declare open(ptr:char ,i32 ,i32):i32;
 declare read(i32,ptr:char, isize):isize;
 declare close(i32):i32;
-declare lseek(i32,isize,i32):isize;
+declare lseek(i32,i64,i32):i64;
 
 fn read_text_file(&:char path):String{
     #=(O_RDONLY,0s,i32);
@@ -17,27 +17,27 @@ fn read_text_file(&:char path):String{
         warpto(break-f);
     }
 
-    #=(size, lseek(fd, as(0,isize), 2s), isize);
+    #=(size, lseek(fd, as(0,i64), 2s), i64);
 
-    loopif:size_error(>(size,100000000)){println("The TextFile is Too Long");println(format("%lld",size));; warpto(break-size_error);}
+    loopif:size_error(>(size,as(100000000,i64))){println("The TextFile is Too Long");println(format("%lld",size));; warpto(break-size_error);}
 
-    lseek(fd, 0, 0s);                 
+    lseek(fd, as(0,i64), 0s);                 
 
-    loopif:s(<=(size,0)){
+    loopif:s(<=(size,as(0,i64))){
         close(fd);
         return String_new(0);
         warpto(break-s);
     }
     
 
-    #=(buf, malloc(+(size, 1),char), *:char);
+    #=(buf, malloc(+(as(size,isize), 1),char), *:char);
 
 
-    #=(total, as(0,isize), isize);
+    #=(total, as(0,i64), i64);
 
     loopif:r(<(total, size)){
         #=(n, read(fd, ptr_add(buf, total), -(size, total)), isize);
-        loopif:e(<=(n, 0)){
+        loopif:e(<=(n, as(0,isize))){
             warpto(break-r);   // EOF or error
             warpto(break-e);
         }

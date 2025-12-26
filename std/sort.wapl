@@ -11,10 +11,10 @@ fn sort_swap_String(ptr:String a, ptr:String b){
     =(*_(b),t);
 }
 
-fn qsort_i64_partition(ptr:i64 arr,i64 left,i64 right):i64{
+fn qsort_i64_partition(ptr:i64 arr,isize left,isize right):isize{
     #=(pivot,[](arr,right),i64);
-    #=(i,-(left,1),i64);
-    #=(j,left,i64);
+    #=(i,-(left,1),isize);
+    #=(j,left,isize);
     warpto(loopstart);
     point loopstart;
     warptoif(<(j,right),InLoop,Break);
@@ -31,10 +31,10 @@ fn qsort_i64_partition(ptr:i64 arr,i64 left,i64 right):i64{
     sort_swap_i64(ptr_add(arr,+(i,1)),ptr_add(arr,right));
     return +(i,1);
 }
-fn qsort_String_partition(&mut:String arr,i64 left,i64 right):i64{
+fn qsort_String_partition(&mut:String arr,isize left,isize right):isize{
     #=(pivot,[](arr,right),String);
-    #=(i,-(left,1),i64);
-    #=(j,left,i64);
+    #=(i,-(left,1),isize);
+    #=(j,left,isize);
     loopif:(<(j,right)){
         warptoif(<(String_cmp([](arr,j),pivot),0),Swap,NoSwap);
         point Swap;
@@ -48,10 +48,10 @@ fn qsort_String_partition(&mut:String arr,i64 left,i64 right):i64{
     return +(i,1);
 }
 
-fn qsort_i64(ptr:i64 arr,i64 left,i64 right){
+fn qsort_i64(ptr:i64 arr,isize left,isize right){
     warptoif(<(left,right),then,End);
     point then;
-        #=(p,qsort_i64_partition(arr,left,right),i64);
+        #=(p,qsort_i64_partition(arr,left,right),isize);
         qsort_i64(arr,left,-(p,1));
         qsort_i64(arr,+(p,1),right);
     warpto(End);
@@ -59,10 +59,10 @@ fn qsort_i64(ptr:i64 arr,i64 left,i64 right){
     point End;
 
 }
-fn qsort_String(ptr:String arr,i64 left,i64 right){
+fn qsort_String(ptr:String arr,isize left,isize right){
     warptoif(<(left,right),then,End);
     point then;
-        #=(p,qsort_String_partition(arr,left,right),i64);
+        #=(p,qsort_String_partition(arr,left,right),isize);
         qsort_String(arr,left,-(p,1));
         qsort_String(arr,+(p,1),right);
     warpto(End);

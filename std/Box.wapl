@@ -1,9 +1,9 @@
 struct Box{
     *:T value,
-    i64 elem_size
+    isize elem_size
 }
 
-fn Box(&:T src,i64 elem_size):Box{
+fn Box(&:T src,isize elem_size):Box{
     #=(value,malloc(elem_size,T),*:T);
     #=(box,_,Box);
     memcpy(value,src,elem_size);
