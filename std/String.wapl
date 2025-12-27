@@ -190,8 +190,7 @@ fn String_iter(String string):Iterator{
 }
 
 fn String_split_whitespace(String src):VecT{
-    #=(sz,as(sizeof(StrSlice),isize),isize);
-    #=(vec_strslice,VecT_new(sz,1_),VecT);
+    #=(vec_strslice,VecT_new(sizeof(StrSlice),1_),VecT);
     #=(index,0_,isize);
     #=(part_len,0_,isize);
     #=(src_str,String_as_str(src),ptr:char);
@@ -217,8 +216,7 @@ fn String_split_whitespace(String src):VecT{
 }
 
 fn String_split(String src,char key):VecT{
-    #=(sz,as(sizeof(StrSlice),isize),isize);
-    #=(vec_strslice,VecT_new(sz,1_),VecT);
+    #=(vec_strslice,VecT_new(sizeof(StrSlice),1_),VecT);
     #=(index,0_,isize);
     #=(part_len,0_,isize);
     #=(src_str,String_as_str(src),ptr:char);
