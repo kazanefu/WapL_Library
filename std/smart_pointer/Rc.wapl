@@ -1,0 +1,122 @@
+
+struct _RcBox{
+    *:T data, // 所有権あり
+    isize strong_counter,
+    isize weak_counter,
+}
+
+struct Rc{
+    ptr:_RcBox rc_box, // *mut _RcBox相当
+    bool is_weak,
+    bool is_deleted, // rc_boxの中のdataではなくこのRc自体がスコープから外れる際にRc_delが呼ばれる
+}
+
+fn _RcBox_new(isize type_size,ptr:T data):_RcBox{
+    #=(rc_box,_,_RcBox);
+    #=(new_data,malloc(type_size,T),*:T);
+    memcpy(new_data,data,type_size);
+    =(.(rc_box,data),pmove(new_data));
+    =(.(rc_box,strong_counter),1_);
+    =(.(rc_box,weak_counter),0_);
+    return rc_box;
+}
+
+fn Rc_new(isize type_size,ptr:T data):Rc{
+    #=(new_rc,_,Rc);
+    =(.(new_rc,is_weak),false);
+    =(.(new_rc,is_deleted),false);
+    #=(rc_box_ptr,malloc(sizeof(_RcBox),_RcBox),*:_RcBox);
+    =(*_(rc_box_ptr),_RcBox_new(type_size,data));
+    =(.(new_rc,rc_box),pmove(rc_box_ptr));
+    return new_rc;
+}
+
+fn _RcBox_add_strong_count(&mut:_RcBox self){
+    =(_>(self,strong_counter),+(_>(self,strong_counter),1_));
+}
+
+fn _RcBox_sub_strong_count(&mut:_RcBox self){
+    =(_>(self,strong_counter),-(_>(self,strong_counter),1_));
+    if(<=(_>(self,strong_counter),0_)){
+        free(_>(self,data));
+    }
+}
+
+fn _RcBox_add_weak_count(&mut:_RcBox self){
+    =(_>(self,weak_counter),+(_>(self,weak_counter),1_));
+}
+
+fn _RcBox_sub_weak_count(ptr:_RcBox self){
+    =(_>(self,weak_counter),-(_>(self,weak_counter),1_));
+    if(&&(<=(_>(self,strong_counter),0_),<=(_>(self,weak_counter),0_))){
+        free(self);
+    }
+}
+
+fn Rc_strong_count(Rc self):isize{
+    return _>(.(self,rc_box),strong_counter);
+}
+
+fn Rc_weak_count(Rc self):isize{
+    return _>(.(self,rc_box),weak_counter);
+}
+
+fn Rc_clone(&:Rc self):Rc{
+    if(_>(self,is_deleted)){
+        println("panic: cloning deleted Rc");
+        trap();
+    }
+    if(_>(self,is_weak)){
+        _RcBox_add_weak_count(p&mut(_>(self,rc_box)));
+    }else{
+        _RcBox_add_strong_count(p&mut(_>(self,rc_box)));
+    }
+    return *_(self); // Rcのコピー
+}
+
+fn Rc_downgrade(&:Rc self):Rc{
+    _RcBox_add_weak_count(p&mut(_>(self,rc_box)));
+    #=(weak,*_(self),Rc); // Rcのコピー
+    =(.(weak,is_weak),true);
+    return weak; 
+}
+
+fn Rc_upgrade(&mut:Rc self):Rc{
+    if(_>(self,is_deleted)){
+        println("panic: cloning deleted Rc");
+        trap();
+    }
+    #=(ret,*_(self),Rc);
+    if(_>(self,is_weak)){
+        if(<=(_>(_>(self,rc_box),strong_counter),0_)){
+            println("panic: this Rc has no strong ref");
+            trap();
+        }
+        _RcBox_add_strong_count(p&mut(_>(self,rc_box)));
+        =(.(ret,is_weak),false);
+    }else{
+        println("warning: this Rc is not weak. instead of using Rc_upgrade, use Rc_clone");
+    }
+    return ret;
+}
+
+// Rcはスタック上にあるが,スコープを抜けることを検出して自動で消していく方法がないので明示的にRc_delをする
+// これをしてもstrong_counter>=0ならば_RcBoxはまだ有効
+fn Rc_del(ptr:Rc self){
+    if(_>(self,is_weak)){
+        _RcBox_sub_weak_count(p&mut(_>(self,rc_box)));
+    }else{
+        _RcBox_sub_strong_count(p&mut(_>(self,rc_box)));
+    }
+    =(_>(self,is_deleted),true);
+    // selfはスタック上なので解放しなくてよい
+}
+
+// ジェネリクスがないので仕方なくptr:Tで返しているが,基本的にデリファレンスして使う想定
+fn Rc_open(Rc self):ptr:T{ // 寿命は_RcBox.dataが解放されるまで. 
+    if(||(.(self,is_deleted),<=(Rc_strong_count(self),0_))){
+        println("panic: this Rc is already freed");
+        trap();
+    }
+    return _>(.(self,rc_box),data);
+}

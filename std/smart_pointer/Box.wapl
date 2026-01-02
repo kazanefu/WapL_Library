@@ -1,0 +1,40 @@
+struct Box{
+    *:T data,
+    bool valid,
+}
+
+fn Box_new(isize type_size,ptr:T data):Box{
+    #=(box,_,Box);
+    #=(new_data,malloc(type_size,T),*:T);
+    memcpy(new_data,data,type_size);
+    =(.(box,data),pmove(new_data));
+    =(.(box,valid),true);
+    return box;
+}
+
+fn Box_open(Box self):ptr:T{
+    if (!(.(self,valid))){
+        println("panic: open invalid Box");
+        trap();
+    }
+    return .(self,data);
+}
+
+fn Box_free(&mut:Box self){
+    if(!(_>(self,valid))){
+        println("panic: free invalid Box");
+        trap();
+    }
+    free(pmove(_>(self,data)));
+    =(_>(self,valid),false);
+}
+
+fn Box_move(&mut:Box self):Box{
+    #=(box,*_(self),Box);
+    if(!(_>(self,valid))){
+        println("panic: move invalid Box");
+        trap();
+    }
+    =(_>(self,valid),false);
+    return box;
+}

@@ -1,30 +1,12 @@
 use "./std/allstd.wapl"
 
+fn main():i32{
+    #=(ans,0,i64);
+    #=(n,_,i64);
+    scanf("%lld",&_(n));
+    #=(a,input_i64(n),*:i64);
 
-fn __main_argc_argv(i32 argc,ptr:ptr:char argv):i32{
-
-    #=(input,String_new(0_),String);
-
-    #=(add_len,_,isize);
-    unwrap?( read_line(&_(input),&_(add_len)) );
-
-    #=(n,_,i32);
-
-    //#=(input, String_from("hoge hoeg ffo"), String);
-    #=(v,String_split_whitespace(input),VecT);
-    #=(it,VecT_iter(v),Iterator);
-    loopif:(is_some(iter_peek(&_(it)))){
-        #=(str,*_(unwrap(iter_next(&_(it))),StrSlice),StrSlice);
-        #=(string,StrSlice_to_String(str),String);
-        printf( "(%s:)\n",String_as_str(string));
-        String_free(&_(string));
-
-    }
-    printf("hello\n")
-
-    VecT_free(&_(v));
-
-    String_free(&_(input));
-
+    println(format("%lld",ans));
+    free(pmove(a));
     return 0s;
 }

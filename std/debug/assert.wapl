@@ -1,0 +1,7 @@
+use "./std/debug/panic.wapl"
+
+fn assert(bool cond, ptr:char msg){
+    if(!(cond)){
+        panic(msg);
+    }
+}

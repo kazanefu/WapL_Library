@@ -1,0 +1,4 @@
+fn panic(ptr:char msg){
+    println(msg);
+    trap();
+}
